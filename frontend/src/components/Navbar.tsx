@@ -1,8 +1,18 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Navbar() {
   const location = useLocation();
   const isLandingPage = location.pathname === '/';
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Failed to log out:', error);
+    }
+  };
 
   return (
     <nav className="fixed top-0 w-full bg-black/95 backdrop-blur-sm border-b border-zinc-800 z-50">
@@ -10,7 +20,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link to="/" className="text-xl font-bold gradient-text">TeamAI</Link>
-            {!isLandingPage && (
+            {user && !isLandingPage && (
               <div className="hidden md:flex ml-10 space-x-8">
                 <Link to="/dashboard" className="text-gray-300 hover:text-white transition-colors">
                   Dashboard
@@ -28,13 +38,17 @@ export default function Navbar() {
             )}
           </div>
           <div className="flex items-center space-x-4">
-            {isLandingPage ? (
-              <>
-                <Link to="/login" className="btn-secondary">Login</Link>
-                <Link to="/register" className="btn-primary">Get Started</Link>
-              </>
+            {!user ? (
+              isLandingPage ? (
+                <>
+                  <Link to="/login" className="btn-secondary">Login</Link>
+                  <Link to="/register" className="btn-primary">Get Started</Link>
+                </>
+              ) : null
             ) : (
-              <button className="btn-secondary">Logout</button>
+              <button onClick={handleLogout} className="btn-secondary">
+                Logout
+              </button>
             )}
           </div>
         </div>
