@@ -52,7 +52,6 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
   const [isClient, setIsClient] = useState(false);
   const [inCall, setInCall] = useState(false);
   const [callId, setCallId] = useState<string>();
-  const [isHost, setIsHost] = useState(false);
   const webcamButtonRef = useRef<HTMLButtonElement>(null);
   const callButtonRef = useRef<HTMLButtonElement>(null);
   const callInputRef = useRef<HTMLInputElement>(null);
@@ -69,9 +68,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
   );
   const [micEnabled, setMicEnabled] = useState(true);
   const [videoEnabled, setVideoEnabled] = useState(true);
-  const [accessGiven, setAccessGiven] = useState(false);
   const [nameList, setNameList] = useState<string[]>();
-
   const [stream, setStream] = useState<MediaStream | null>(null);
   let localStream: MediaStream | null;
   const [beforeCall, setBeforeCall] = useState(0);
@@ -131,7 +128,6 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
 
     const myIndex = 1;
     setMyIndex(myIndex);
-    setIsHost(true);
     let pc: RTCPeerConnection;
 
     indexOfOtherConnectedCandidates.onSnapshot(async (doc) => {
@@ -786,7 +782,6 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
             audio: true,
           });
           await setStream(localStream);
-          await setAccessGiven(true);
           if (webcamVideoRef.current && localStream) {
             webcamVideoRef.current.srcObject = localStream;
           }
