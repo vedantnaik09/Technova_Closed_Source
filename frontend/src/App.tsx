@@ -6,6 +6,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import DashboardEmployee from './pages/DashboardEmployee';
+import Moderator from './pages/Moderator';
 
 // function PrivateRoute({ children }: { children: React.ReactNode }) {
 //   const { user, loading } = useAuth();
@@ -24,6 +25,7 @@ function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           <Route path="/dashboardEmployee" element={<DashboardEmployee />} />
+          <Route path="/moderator" element={<Moderator/>} />
         </Routes>
       </Router>
       <Toaster position="top-right" />

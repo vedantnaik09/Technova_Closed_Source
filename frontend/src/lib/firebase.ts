@@ -1,5 +1,8 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
+import "firebase/compat/firestore";
+import "firebase/compat/database";
+import "firebase/compat/storage";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -10,10 +13,16 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-console.log("API KEY IS",firebaseConfig.apiKey)
+console.log("API KEY IS", firebaseConfig.apiKey);
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const googleProvider = new GoogleAuthProvider();
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
 
-export { auth, googleProvider };
+const auth = firebase.auth();
+const googleProvider = new firebase.auth.GoogleAuthProvider();
+const firestore = firebase.firestore();
+const database = firebase.database();
+const storage = firebase.storage();
+
+export { firebase, auth, googleProvider, firestore, database, storage };

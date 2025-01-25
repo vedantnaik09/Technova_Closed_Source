@@ -9,14 +9,22 @@ export default function Register() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [role, setRole] = useState(''); // State for role
+  const [role, setRole] = useState('');
   const [loading, setLoading] = useState(false);
-  const [googleSignInInitiated, setGoogleSignInInitiated] = useState(false); // To handle Google sign-in flow
+  const [googleSignInInitiated, setGoogleSignInInitiated] = useState(false);
   const navigate = useNavigate();
   const { signUp, signInWithGoogle } = useAuth();
 
+  interface SignInResult {
+    user: any; // Replace `any` with your user type if available
+    additionalUserInfo?: {
+      isNewUser: boolean;
+    };
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!role) {
       toast.error('Please select a role');
       return;
@@ -31,27 +39,42 @@ export default function Register() {
       try {
         setLoading(true);
         await signUp(email, password);
-        navigate('/dashboard');
+        navigate('/dashboardEmployee');
       } catch (error) {
         setLoading(false);
+        toast.error('Failed to create an account. Please try again.');
       }
     } else {
       // Handle Google sign-in redirection after role selection
+      toast.success('Account successfully created with Google!');
       navigate('/dashboardEmployee');
     }
   };
 
+  
   const handleGoogleSignIn = async () => {
     try {
-      setGoogleSignInInitiated(true); // Indicate Google sign-in flow
       setLoading(true);
-      await signInWithGoogle();
-      setLoading(false);
+  
+      // Explicitly type the result
+      const result: SignInResult = await signInWithGoogle();
+  
+      // Check if the user is new
+      const isNewUser = result?.additionalUserInfo?.isNewUser;
+  
+      if (isNewUser) {
+        setGoogleSignInInitiated(true); // Show role dropdown for new users
+      } else {
+        // Redirect existing user directly to dashboard
+        navigate('/dashboardEmployee');
+      }
     } catch (error) {
       setLoading(false);
       setGoogleSignInInitiated(false);
+      toast.error('Google sign-in failed. Please try again.');
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-black pb-10">
@@ -116,25 +139,27 @@ export default function Register() {
             )}
 
             {/* Role Dropdown */}
-            <div className="space-y-4">
-              <label htmlFor="role" className="block text-sm font-medium mb-2">
-                Select Role
-              </label>
-              <select
-                id="role"
-                required
-                className="input-field"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-              >
-                <option value="" disabled>
-                  Choose a role
-                </option>
-                <option value="Company">Company</option>
-                <option value="Project Manager">Project Manager</option>
-                <option value="Employee">Employee</option>
-              </select>
-            </div>
+            {googleSignInInitiated || !googleSignInInitiated ? (
+              <div className="space-y-4">
+                <label htmlFor="role" className="block text-sm font-medium mb-2">
+                  Select Role
+                </label>
+                <select
+                  id="role"
+                  required
+                  className="input-field"
+                  value={role}
+                  onChange={(e) => setRole(e.target.value)}
+                >
+                  <option value="" disabled>
+                    Choose a role
+                  </option>
+                  <option value="Company">Company</option>
+                  <option value="Project Manager">Project Manager</option>
+                  <option value="Employee">Employee</option>
+                </select>
+              </div>
+            ) : null}
 
             <button
               type="submit"
