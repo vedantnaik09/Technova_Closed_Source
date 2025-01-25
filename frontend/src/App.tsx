@@ -8,6 +8,7 @@ import Register from './pages/Register';
 import DashboardEmployee from './pages/DashboardEmployee';
 import Moderator from './pages/Moderator';
 import Meet from './pages/Meet';
+import TalkingAvatar from './pages/TalkingAvatar';
 
 // function PrivateRoute({ children }: { children: React.ReactNode }) {
 //   const { user, loading } = useAuth();
@@ -28,6 +29,7 @@ function App() {
           <Route path="/dashboardEmployee" element={<DashboardEmployee />} />
           <Route path="/moderator" element={<Moderator/>} />
           <Route path="/employeeMeet" element={<Meet/>} />
+          <Route path="/talkingAvatar" element={<TalkingAvatar/>} />
         </Routes>
       </Router>
       <Toaster position="top-right" />

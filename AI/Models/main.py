@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException,Request
 from pydub import AudioSegment
 from pydub.exceptions import CouldntDecodeError
 import os
@@ -6,8 +6,20 @@ from gtts import gTTS
 from fastapi.responses import FileResponse
 from Meeting_Minutes import Meeting
 from task_allocator import summarize_resumes,Tasks
+from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
+load_dotenv()
 app = FastAPI()
-
+from langchain_google_genai import ChatGoogleGenerativeAI
+api_key=os.getenv("GOOGLE_API_KEY")
+llms= ChatGoogleGenerativeAI(model="gemini-2.0-flash-exp",api_key=api_key)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 def merge_audio_files(audio_files):
     """
     Merge audio files into a single audio file and delete individual files after merging.
@@ -22,7 +34,7 @@ def merge_audio_files(audio_files):
             merged_audio += audio
             # Delete the individual audio file after merging
             #os.remove(audio_url)
-            print(f"Deleted: {audio_url}")
+            #print(f"Deleted: {audio_url}")
         except CouldntDecodeError:
             raise HTTPException(status_code=400, detail=f"Could not decode audio file: {audio_url}")
         except FileNotFoundError:
@@ -72,8 +84,24 @@ async def merge_audio(request: dict):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+        
 
+@app.post("/answer-question")
+async def answer_question(request: Request):
+    try:
+        data = await request.json()
+        user_input = data.get("answer", "")
+        
+        if not user_input:
+            raise HTTPException(status_code=400, detail="No question provided")
 
+        # Get response from Google Generative AI
+        response = llms.invoke(user_input)
+        
+        return {"response": response.content}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
