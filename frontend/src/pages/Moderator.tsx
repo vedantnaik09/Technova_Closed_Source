@@ -996,7 +996,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
             <FaPhoneSlash size={15} />
           </button>
         </div>
-        <RealTimeTranscript/>
+        <RealTimeTranscript roomId={callId!} userId={myId} isLast={true}/>
       </div>
 
       <div
