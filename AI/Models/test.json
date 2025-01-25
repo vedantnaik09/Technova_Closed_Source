@@ -1,0 +1,37 @@
+{
+    "task_assignments": [
+      {
+        "user_id": "6794ef7fe8c692c5bf483660",
+        "task_deadline": "2024-02-15",
+        "tasks_summary": [
+          "Lead frontend development using React and Next.js",
+          "Implement core UI components based on designs",
+          "Develop responsive layouts and user interfaces",
+          "Integrate WebRTC frontend functionality",
+          "Handle frontend testing and performance optimization"
+        ]
+      },
+      {
+        "user_id": "6794ef65e8c692c5bf48365d",
+        "task_deadline": "2024-02-15",
+        "tasks_summary": [
+          "Set up Node.js signaling server",
+          "Implement WebRTC backend infrastructure",
+          "Develop chat and screen sharing functionality",
+          "Handle backend API development and integration",
+          "Implement user authentication and session management"
+        ]
+      },
+      {
+        "user_id": "6794d66dc7bc62141a55c355",
+        "task_deadline": "2024-02-25",
+        "tasks_summary": [
+          "Implement machine learning features for noise reduction",
+          "Develop background removal algorithms",
+          "Create AI-powered video optimization features",
+          "Handle performance testing and optimization",
+          "Implement automated testing frameworks"
+        ]
+      }
+    ]
+  }
