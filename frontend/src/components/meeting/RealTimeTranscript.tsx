@@ -3,7 +3,11 @@ import RecordRTC from "recordrtc";
 import toast from "react-hot-toast";
 import hark from "hark";
 
-const RealTimeTranscript: React.FC = () => {
+const RealTimeTranscript: React.FC<{
+  roomId: string;
+  userId: string;
+  isLast: boolean;
+}> = ({ roomId, userId, isLast }) => {
   const [status, setStatus] = useState<"RECORDING" | "STOPPED">("STOPPED");
   const [recorder, setRecorder] = useState<RecordRTC | null>(null);
   const [speechEvents, setSpeechEvents] = useState<{ start: number; stop: number }[]>([]);
@@ -85,15 +89,12 @@ const RealTimeTranscript: React.FC = () => {
       // Get the recorded blob
       const blob = recorder.getBlob();
 
-      // Create a download link
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `recording-${Date.now()}.webm`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      // Create a FormData object
+      const formData = new FormData();
+      formData.append("audio", blob, `recording-${Date.now()}.webm`);
+      formData.append("roomId", roomId);
+      formData.append("timestamps", JSON.stringify(speechEventsRef.current));
+      formData.append("isLast", isLast.toString());
 
       // Stop the media stream
       if (mediaStreamRef.current) {
@@ -105,8 +106,8 @@ const RealTimeTranscript: React.FC = () => {
       setRecorder(null);
       setStatus("STOPPED");
 
-      // Send speech events to API
-      sendSpeechEventsToAPI(speechEventsRef.current);
+      // Send form data to API
+      sendFormDataToAPI(formData);
 
       // Clear speech events
       speechEventsRef.current = [];
@@ -120,24 +121,29 @@ const RealTimeTranscript: React.FC = () => {
     });
   };
 
-  const sendSpeechEventsToAPI = async (events: { start: number; stop: number }[]) => {
+  const sendFormDataToAPI = async (formData: FormData) => {
     try {
-      const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(events),
-      });
-
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/api/audios/upload/:6794d66dc7bc62141a55c355`,
+        {
+          method: "POST",
+          headers: {
+            // Authorization: `Bearer ${localStorage.getItem("bearerToken")}`, // Assuming the token is stored in localStorage
+            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTRkNjZkYzdiYzYyMTQxYTU1YzM1NSIsImVtYWlsIjoibmlzaHVAZXhhbXBsZS5jb20iLCJyb2xlIjoiRU1QTE9ZRUUiLCJpYXQiOjE3Mzc4MDc0NjksImV4cCI6MTczNzg5Mzg2OX0.zXbifjU3Ot5pNN7rebgRWivfjuh05E8vsUbll5pegAI`, // Assuming the token is stored in localStorage
+          },
+          body: formData,
+        }
+      );
+      console.log(`URL IS ${import.meta.env.VITE_BASE_URL}/api/meetings/audios/upload/:6794d66dc7bc62141a55c355
+`);
       if (!response.ok) {
-        throw new Error("Failed to send speech events to API");
+        throw new Error("Failed to send form data to API");
       }
 
       const data = await response.json();
-      console.log("Speech events sent to API:", data);
+      console.log("Form data sent to API:", data);
     } catch (error) {
-      console.error("Error sending speech events to API:", error);
+      console.error("Error sending form data to API:", error);
     }
   };
 
