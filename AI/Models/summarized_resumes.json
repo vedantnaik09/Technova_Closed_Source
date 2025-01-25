@@ -1,0 +1,17 @@
+[
+    {
+        "resume_number": 1,
+        "resume_name": "Milan_Patel_Resume.pdf",
+        "summary": "Strong in full-stack web development with React, Node.js, and Express. Proficient in database technologies like MongoDB and PostgreSQL, and familiar with blockchain concepts."
+    },
+    {
+        "resume_number": 2,
+        "resume_name": "Resume (1).pdf",
+        "summary": "Prathmesh has strong expertise in **Machine Learning and Deep Learning**, with proficiency in areas like model development, NLP, and computer vision."
+    },
+    {
+        "resume_number": 3,
+        "resume_name": "Taher Afsar Resume.pdf",
+        "summary": "Taher is a strong full-stack developer with expertise in MERN stack, particularly React, Node.js, and MongoDB."
+    }
+]
