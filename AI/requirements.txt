@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+google-genai
+google-generativeai
+deepgram-sdk
+moviepy==1.0.3
+langchain_google_genai
+pymongo
+anthropic["vertexai]
+PyPdf2
+pydub
+gtts
