@@ -8,7 +8,9 @@ from dotenv import load_dotenv
 from google import genai
 from anthropic import AnthropicVertex
 load_dotenv()
-def summarize_resumes(resume_folder, output_file):
+def get_resume(user_id):
+    pass
+def summarize_resumes(users_id,resume_folder, output_file):
     """
     Summarizes all PDF resumes in the specified folder and saves the results to a JSON file.
 
@@ -29,7 +31,7 @@ def summarize_resumes(resume_folder, output_file):
             
             # Append the result to the list with a sequential number
             summarized_resumes.append({
-                'resume_number': idx + 1,  # Sequential number starting from 1
+                'resume_number': users_id[idx],  # Sequential number starting from 1
                 'resume_name': filename,   # Name of the resume file
                 'summary': summary         # Summarized text
             })
@@ -40,11 +42,7 @@ def summarize_resumes(resume_folder, output_file):
 
     print(f"Summarized results saved to {output_file}")
 
-# Example usage
-resume_folder = r'AI\Models\resume'  # Update this path to your resume folder
-output_file = r'AI\Models\summarized_resumes.json'  # Update this path to your desired output file
 
-summarize_resumes(resume_folder, output_file)
 
 
 
@@ -86,10 +84,10 @@ def create_task_assignments(client, model_name, system_prompt, team_data, task_d
     )
     return message.content[0].text
 
-def Tasks():
+def Tasks(audio_file):
     # Paths and configurations
     json_file = r'AI\Models\summarized_resumes.json'
-    audio_file = r"AI\Models\audios\Test_Audio.mp3"
+    audio_file = audio_file
     google_credentials = r"AI\Models\trubuddyy-ca64a00f7d15.json"
     reasoning_model = "gemini-2.0-flash-thinking-exp"
     anthropic_model = "claude-3-5-sonnet-v2@20241022"
@@ -150,10 +148,9 @@ def Tasks():
 
     # Load the JSON string into a Python dictionary
     json_data = json.loads(json_string)
-    print('You are done', json_data)
+    return json_data
 
-if __name__ == "__main__":
-    Tasks()
+
 
 
 
