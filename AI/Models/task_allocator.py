@@ -167,7 +167,7 @@ def Tasks(audio_file):
       "task_assignments": [
         {
           "user_id": "ID of the team member Take that from Team Members Data. ",
-          "task_deadline": "Deadline for the task (YYYY-MM-DD)",
+          "task_deadline": "Deadline for the task in number of hrs (10hrs)",
           "tasks_summary": "Brief description of the task assigned in List is more than one task [1st,2nd,3rd]",
         }
       ]

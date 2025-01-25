@@ -8,12 +8,15 @@ import Register from './pages/Register';
 import DashboardEmployee from './pages/DashboardEmployee';
 import Moderator from './pages/Moderator';
 import Meet from './pages/Meet';
+<<<<<<< HEAD
 import TalkingAvatar from './pages/TalkingAvatar';
 import CreateCompany from './pages/CreateCompany';
 import CreateProject from './pages/CreateProject';
 import AddCompanyEmployee from './pages/AddCompanyEmployee';
 import ProjectEmployees from './pages/ProjectEmployees';
 import AddProjectEmployee from './pages/AddProjectEmployee';
+=======
+>>>>>>> d5d39de7fee8d294b67dfdc8c8a4bcfa06aecd98
 
 // function PrivateRoute({ children }: { children: React.ReactNode }) {
 //   const { user, loading } = useAuth();

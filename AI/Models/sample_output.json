@@ -1,0 +1,35 @@
+{
+    "task_assignments": [
+        {
+            "user_id": "6794ef7fe8c692c5bf483660",
+            "task_deadline": "40hrs",
+            "tasks_summary": [
+                "Lead frontend development using React",
+                "Implement WebRTC client-side integration",
+                "Develop UI components for video grid and controls",
+                "Create responsive design and user interactions"
+            ]
+        },
+        {
+            "user_id": "6794ef65e8c692c5bf48365d",
+            "task_deadline": "50hrs",
+            "tasks_summary": [
+                "Develop Node.js signaling server",
+                "Implement WebSocket communication",
+                "Set up STUN server integration",
+                "Create backend APIs for session management",
+                "Handle WebRTC signaling logic"
+            ]
+        },
+        {
+            "user_id": "6794d66dc7bc62141a55c355",
+            "task_deadline": "35hrs",
+            "tasks_summary": [
+                "Design and implement optimization algorithms for video streaming",
+                "Develop analytics system for performance monitoring",
+                "Create automated testing scripts",
+                "Implement quality control mechanisms for video/audio streams"
+            ]
+        }
+    ]
+}
