@@ -3,6 +3,7 @@ import React, {
   useRef,
   useState,
   useCallback,
+  Suspense,
 } from "react";
 import { firestore, firebase } from "../lib/firebase";
 import toast from "react-hot-toast";
@@ -16,6 +17,7 @@ import {
   FaPhoneSlash,
 } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
+import NameDialog from "../components/meeting/NameDialog";
 import RealTimeTranscript from "../components/meeting/RealTimeTranscript";
 
 type OfferAnswerPair = {
@@ -28,8 +30,21 @@ type OfferAnswerPair = {
     type: RTCSdpType;
   } | null;
 };
-
 const Moderator = () => {
+  const [myId, setMyID] = useState<string | null>(null);
+
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      {myId ? (
+        <PageContent myId={myId} />
+      ) : (
+        <NameDialog setMyId={setMyID} />
+      )}
+    </Suspense>
+  );
+};
+
+const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -159,7 +174,7 @@ const Moderator = () => {
                 candidateNameDoc = callDoc
                   .collection("otherCandidates")
                   .doc(`candidate${newAddedUser}${myIndex}`);
-                candidateNameDoc.set({ myName: "Moderator", joiner: "" });
+                candidateNameDoc.set({ myName: myId, joiner: "" });
                 await localStream?.getTracks().forEach((track) => {
                   pc.addTrack(track, localStream as MediaStream);
                 });
@@ -396,7 +411,7 @@ const Moderator = () => {
                   .collection("otherCandidates")
                   .doc(`candidate${newAddedUser}${myIndex}`)
                   .collection("answerCandidates");
-                candidateNameDoc.set({ myName: "Moderator", joiner: "" });
+                candidateNameDoc.set({ myName: myId, joiner: "" });
                 pc.onicecandidate = async (event) => {
                   event.candidate &&
                     (await offerCandidatesCollection.add(
@@ -1009,12 +1024,12 @@ const Moderator = () => {
         {remoteVideoRefs.map((_, index) => (
           <div
             key={index}
-            className={`bg-gray-100 pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] ${
+            className={`pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] border-gray-800 border text-blue-400 ${
               remoteStreams[index] ? "" : "hidden"
             }`}
           >
             {nameList && nameList[index] ? (
-              <h3 className="text-xl font-medium mb-2">{nameList[index]}</h3>
+              <h3 className="text-xl font-medium mb-2 mx-auto w-full text-center">{nameList[index]}</h3>
             ) : (
               <h3 className="text-xl font-medium mb-2">Remote Stream</h3>
             )}

@@ -1,22 +1,22 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-interface NameDialogProps {
-  setMyName: (name: string) => void;
+interface IdDialogProps {
+  setMyId: (id: string) => void;
 }
 
-const NameDialog: React.FC<NameDialogProps> = ({ setMyName }) => {
+const IdDialog: React.FC<IdDialogProps> = ({ setMyId }) => {
   const [inputValue, setInputValue] = useState<string>('');
   const [showDialog, setShowDialog] = useState<boolean>(true);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    // Check if a name is already stored in session storage
-    const storedName = sessionStorage.getItem('userName');
-    if (storedName) {
-      setMyName(storedName);
+    // Check if a user ID is already stored in session storage
+    const storedId = sessionStorage.getItem('userId');
+    if (storedId) {
+      setMyId(storedId);
       setShowDialog(false);
     }
-  }, [setMyName]);
+  }, [setMyId]);
 
   useEffect(() => {
     if (showDialog && inputRef.current) {
@@ -26,9 +26,9 @@ const NameDialog: React.FC<NameDialogProps> = ({ setMyName }) => {
 
   const handleSubmit = () => {
     if (inputValue.trim()) {
-      // Store the name in session storage
-      sessionStorage.setItem('userName', inputValue);
-      setMyName(inputValue); // This updates the parent's state
+      // Store the user ID in session storage
+      sessionStorage.setItem('userId', inputValue);
+      setMyId(inputValue); // This updates the parent's state
       setShowDialog(false);
     }
   };
@@ -39,15 +39,15 @@ const NameDialog: React.FC<NameDialogProps> = ({ setMyName }) => {
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-        <h2 className="text-xl font-bold mb-4">Enter your name</h2>
+      <div className="bg-zinc-900 p-8 rounded-xl shadow-lg w-96">
+        <h2 className="text-xl font-bold mb-4">Enter your ID</h2>
         <input
           type="text"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           ref={inputRef}
           className="border border-gray-300 rounded w-full p-2 mb-4"
-          placeholder="Type your name"
+          placeholder="Type your ID"
         />
         <button
           onClick={handleSubmit}
@@ -60,4 +60,4 @@ const NameDialog: React.FC<NameDialogProps> = ({ setMyName }) => {
   );
 };
 
-export default NameDialog;
+export default IdDialog;
