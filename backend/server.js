@@ -4,10 +4,12 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 
 const app = express();
+const path = require('path');
 
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use('/uploads/resume', express.static(path.join(__dirname, 'uploads/resume')));
 
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/companies', require('./routes/companyRoutes'));

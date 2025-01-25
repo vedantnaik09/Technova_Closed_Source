@@ -25,6 +25,10 @@ const UserSchema = new mongoose.Schema(
       enum: ['EMPLOYEE', 'COMPANY_OWNER', 'PROJECT_MANAGER', 'ADMIN'],
       default: 'EMPLOYEE',
     },
+    resume: {
+      type: String,
+      default: 'http://localhost:5000/resume.pdf', // Default URL for the resume
+    },
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Company',
