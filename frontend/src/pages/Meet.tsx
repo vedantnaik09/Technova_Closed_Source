@@ -20,6 +20,8 @@ import {
 import { MdOutlineStopScreenShare } from "react-icons/md";
 import NameDialog from "../components/meeting/NameDialog";
 import { useLocation, useNavigate } from "react-router-dom";
+import RealTimeTranscript from "../components/meeting/RealTimeTranscript";
+import TalkingAvatar from "../components/TalkingAvatar";
 
 type OfferAnswerPair = {
   offer: {
@@ -816,6 +818,46 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
     }
   };
 
+  const toggleMicFromComponent = (active: boolean) =>{
+    if(micEnabled && !active)
+    {
+      setMicEnabled(!micEnabled);
+      console.log(stream);
+      if (stream) {
+        const audioTrack = stream.getTracks().find((track) => track.kind === "audio");
+        if (audioTrack) {
+          audioTrack.enabled = !audioTrack.enabled;
+        }
+      }
+      if (localStream) {
+        console.log("Local stream is ", localStream);
+        const audioTrack = localStream.getTracks().find((track) => track.kind === "audio");
+        if (audioTrack) {
+          audioTrack.enabled = !audioTrack.enabled;
+        }
+      }
+    }
+    if(!micEnabled && active)
+    {
+      console.log("Mic setting to active")
+      setMicEnabled(!micEnabled);
+      console.log(stream);
+      if (stream) {
+        const audioTrack = stream.getTracks().find((track) => track.kind === "audio");
+        if (audioTrack) {
+          audioTrack.enabled = !audioTrack.enabled;
+        }
+      }
+      if (localStream) {
+        console.log("Local stream is ", localStream);
+        const audioTrack = localStream.getTracks().find((track) => track.kind === "audio");
+        if (audioTrack) {
+          audioTrack.enabled = !audioTrack.enabled;
+        }
+      }
+    }
+  }
+
   const handleVideoToggle = async () => {
     setVideoEnabled(!videoEnabled);
     if (!videoEnabled) {
@@ -952,6 +994,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
           >
             <FaPhoneSlash size={15} />
           </button>
+          <RealTimeTranscript roomId={callId!} userId={myId} manager={false} />
         </div>
       )}
 
@@ -999,6 +1042,12 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
             )}
           </div>
         ))}
+        <div
+        className={`pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] border-gray-800 border text-blue-400 mx-auto`}
+      >
+        <h3 className="text-xl font-medium mb-2 mx-auto w-full text-center">Your AI Assistant</h3>
+        <TalkingAvatar toggleMicFromComponent = {toggleMicFromComponent}/>
+      </div>
       </div>
     </div>
   );
