@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException,Request
 from pydub import AudioSegment
 from pydub.exceptions import CouldntDecodeError
 import os
+from bson import ObjectId
 import json
 from gtts import gTTS 
 import base64
@@ -246,6 +247,7 @@ async def merge_audio(request: dict):
         # Generate tasks JSON
         json_data = Tasks(tts_output_file)
         collection_task = db["tasks"]
+        collection_users = db["users"] 
 
         
 
@@ -257,8 +259,37 @@ async def merge_audio(request: dict):
             user_id = assignment.get("user_id")
             task_deadline = assignment.get("task_deadline")
             tasks_summary = assignment.get("tasks_summary", [])
-            
+            try:
+                user_id_obj = ObjectId(user_id)
+            except Exception as e:
+                print(f"Invalid user_id: {user_id}, error: {e}")
+                continue 
+            user = collection_users.find_one({"_id": user_id_obj}) 
+            user_email = user.get("email") if user else None
+            # Subject for the email
+            subject = "New Task Assignment"
 
+# Format the task summary separately
+            task_summary_formatted = "\n".join([f"- {task}" for task in tasks_summary])
+
+# Body for the email
+            body = f"""
+Dear User,
+
+You have been assigned a new task with the following details:
+
+Task Summary:
+{task_summary_formatted}
+
+Deadline: {task_deadline}
+
+Please ensure that the task is completed by the specified deadline.
+
+Best regards,
+Your Team
+"""
+            send_email(user_email,subject,body)
+            print("mail sended")
             # Parse deadline hours
             try:
                 deadline_hours = int(task_deadline.replace("hrs", "").replace("hr", "").strip())
@@ -297,7 +328,7 @@ async def merge_audio(request: dict):
                     print(f"Error inserting task: {e}")
 
         # Close MongoDB connection
-        client.close()
+        #
 
         return {
             "json_data": json_data,
