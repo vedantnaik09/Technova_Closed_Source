@@ -1,9 +1,9 @@
-"use client";
 import React, {
   useEffect,
   useRef,
   useState,
   useCallback,
+  Suspense,
 } from "react";
 import { firestore, firebase } from "../lib/firebase";
 import toast from "react-hot-toast";
@@ -17,7 +17,8 @@ import {
   FaPhoneSlash,
 } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
-import RealTimeTranscript from "../components/RealTimeTranscript";
+import NameDialog from "../components/meeting/NameDialog";
+import RealTimeTranscript from "../components/meeting/RealTimeTranscript";
 
 type OfferAnswerPair = {
   offer: {
@@ -29,8 +30,21 @@ type OfferAnswerPair = {
     type: RTCSdpType;
   } | null;
 };
-
 const Moderator = () => {
+  const [myId, setMyID] = useState<string | null>(null);
+
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      {myId ? (
+        <PageContent myId={myId} />
+      ) : (
+        <NameDialog setMyId={setMyID} />
+      )}
+    </Suspense>
+  );
+};
+
+const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -87,28 +101,6 @@ const Moderator = () => {
     iceCandidatePoolSize: 10,
   };
 
-  const startWebcam = async () => {
-    try {
-      localStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      });
-      await setStream(localStream);
-      await setAccessGiven(true);
-      if (webcamVideoRef.current && localStream) {
-        webcamVideoRef.current.srcObject = localStream;
-      }
-      localStream = null;
-      setStream(null);
-    } catch (error) {
-      console.error("Error accessing webcam:", error);
-    }
-
-    if (callButtonRef.current) callButtonRef.current.disabled = false;
-    if (answerButtonRef.current) answerButtonRef.current.disabled = false;
-    if (webcamButtonRef.current) webcamButtonRef.current.disabled = true;
-    return true;
-  };
 
   const handleCallButtonClick = async () => {
     setInCall(true);
@@ -182,7 +174,7 @@ const Moderator = () => {
                 candidateNameDoc = callDoc
                   .collection("otherCandidates")
                   .doc(`candidate${newAddedUser}${myIndex}`);
-                candidateNameDoc.set({ myName: "Moderator", joiner: "" });
+                candidateNameDoc.set({ myName: myId, joiner: "" });
                 await localStream?.getTracks().forEach((track) => {
                   pc.addTrack(track, localStream as MediaStream);
                 });
@@ -419,7 +411,7 @@ const Moderator = () => {
                   .collection("otherCandidates")
                   .doc(`candidate${newAddedUser}${myIndex}`)
                   .collection("answerCandidates");
-                candidateNameDoc.set({ myName: "Moderator", joiner: "" });
+                candidateNameDoc.set({ myName: myId, joiner: "" });
                 pc.onicecandidate = async (event) => {
                   event.candidate &&
                     (await offerCandidatesCollection.add(
@@ -937,9 +929,9 @@ const Moderator = () => {
   }, [pcs, nameList]);
 
   return (
-    <div className="mx-auto p-5 w-full">
-      <h2 className="text-2xl font-semibold my-4">Multi-RTC</h2>
-      <div className="flex mx-auto sticky gap-4 bg-black w-fit p-2 rounded-xl max-md:flex-col">
+    <div className="mx-auto p-5 w-full text-black bg-gradient-to-b from-indigo-600/10 to-transparent">
+      <h2 className="text-2xl font-semibold my-4 text-white">Meet - {callId}</h2>
+      <div className="flex mx-auto sticky gap-4 bg-zinc-900 border border-gray-800 w-fit p-2 px-5 rounded-xl max-md:flex-col">
         <div className="flex mx-auto justify-center gap-2">
           {/* Mic Toggle */}
           <button
@@ -1004,16 +996,16 @@ const Moderator = () => {
             <FaPhoneSlash size={15} />
           </button>
         </div>
-        <RealTimeTranscript callId={callId} remoteStreams={remoteStreams} />
+        <RealTimeTranscript/>
       </div>
 
       <div
         className={`flex mx-auto my-5 justify-center w-full gap-2 flex-wrap`}
       >
         <div
-          className={`bg-gray-100 pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px]`}
+          className={`pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] border-gray-800 border text-blue-400`}
         >
-          <h3 className="text-xl font-medium mb-2">You</h3>
+          <h3 className="text-xl font-medium mb-2 mx-auto w-full text-center">You</h3>
           {isClient && (
             <video
               id="webcamVideo"
@@ -1032,12 +1024,12 @@ const Moderator = () => {
         {remoteVideoRefs.map((_, index) => (
           <div
             key={index}
-            className={`bg-gray-100 pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] ${
+            className={`pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] border-gray-800 border text-blue-400 ${
               remoteStreams[index] ? "" : "hidden"
             }`}
           >
             {nameList && nameList[index] ? (
-              <h3 className="text-xl font-medium mb-2">{nameList[index]}</h3>
+              <h3 className="text-xl font-medium mb-2 mx-auto w-full text-center">{nameList[index]}</h3>
             ) : (
               <h3 className="text-xl font-medium mb-2">Remote Stream</h3>
             )}

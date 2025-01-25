@@ -6,9 +6,8 @@ import {
   signInWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
-  signInWithPopup,
 } from 'firebase/auth';
-import { auth, googleProvider } from '../lib/firebase';
+import { auth} from '../lib/firebase';
 import toast from 'react-hot-toast';
 
 interface AuthContextType {
@@ -16,7 +15,6 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
-  signInWithGoogle: () => Promise<UserCredential>;
   logout: () => Promise<void>;
 }
 
@@ -55,16 +53,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const signInWithGoogle = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      toast.success('Logged in successfully!');
-      return result; // Return the result
-    } catch (error: any) {
-      toast.error(error.message);
-      throw error;
-    }
-  };
 
   const logout = async () => {
     try {
@@ -77,7 +65,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, signUp, signIn, signInWithGoogle, logout }}>
+    <AuthContext.Provider value={{ user, loading, signUp, signIn, logout }}>
       {!loading && children}
     </AuthContext.Provider>
   );

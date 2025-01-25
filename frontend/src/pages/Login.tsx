@@ -1,32 +1,21 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FcGoogle } from 'react-icons/fc';
-import { useAuth } from '../contexts/AuthContext';
-import Navbar from '../components/Navbar';
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import Navbar from "../components/Navbar";
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { signIn, signInWithGoogle } = useAuth();
+  const { signIn } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       setLoading(true);
       await signIn(email, password);
-      navigate('/dashboardEmployee');
-    } catch (error) {
-      setLoading(false);
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    try {
-      setLoading(true);
-      await signInWithGoogle();
-      navigate('/dashboardEmployee');
+      navigate("/dashboardEmployee");
     } catch (error) {
       setLoading(false);
     }
@@ -38,7 +27,9 @@ export default function Login() {
       <div className="pt-24 flex items-center justify-center px-4">
         <div className="max-w-md w-full space-y-8 bg-zinc-900/50 p-8 rounded-xl border border-zinc-800">
           <div>
-            <h2 className="text-3xl font-bold text-center mb-2">Welcome Back</h2>
+            <h2 className="text-3xl font-bold text-center mb-2">
+              Welcome Back
+            </h2>
             <p className="text-center text-gray-400">
               Log in to access your workspace
             </p>
@@ -46,7 +37,10 @@ export default function Login() {
           <form onSubmit={handleSubmit} className="mt-8 space-y-6">
             <div className="space-y-4">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium mb-2"
+                >
                   Email
                 </label>
                 <input
@@ -60,7 +54,10 @@ export default function Login() {
                 />
               </div>
               <div>
-                <label htmlFor="password" className="block text-sm font-medium mb-2">
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium mb-2"
+                >
                   Password
                 </label>
                 <input
@@ -86,7 +83,10 @@ export default function Login() {
                   Remember me
                 </label>
               </div>
-              <a href="#" className="text-sm text-indigo-400 hover:text-indigo-300">
+              <a
+                href="#"
+                className="text-sm text-indigo-400 hover:text-indigo-300"
+              >
                 Forgot password?
               </a>
             </div>
@@ -96,31 +96,15 @@ export default function Login() {
               disabled={loading}
               className="w-full btn-primary disabled:opacity-50"
             >
-              {loading ? 'Signing in...' : 'Sign In'}
-            </button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-zinc-800"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-zinc-900/50 text-gray-400">Or continue with</span>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-2 btn-secondary disabled:opacity-50"
-            >
-              <FcGoogle className="w-5 h-5" />
-              Google
+              {loading ? "Signing in..." : "Sign In"}
             </button>
 
             <p className="text-center text-sm">
-              Don't have an account?{' '}
-              <Link to="/register" className="text-indigo-400 hover:text-indigo-300">
+              Don't have an account?{" "}
+              <Link
+                to="/register"
+                className="text-indigo-400 hover:text-indigo-300"
+              >
                 Sign up
               </Link>
             </p>
