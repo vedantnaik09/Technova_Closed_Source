@@ -1,24 +1,11 @@
-import React, {
-  useEffect,
-  useRef,
-  useState,
-  useCallback,
-  Suspense,
-} from "react";
+import React, { useEffect, useRef, useState, useCallback, Suspense } from "react";
 import { firestore, firebase } from "../lib/firebase";
 import toast from "react-hot-toast";
-import {
-  FaMicrophoneAltSlash,
-  FaVideoSlash,
-  FaMicrophone,
-  FaVideo,
-  FaCamera,
-  FaCopy,
-  FaPhoneSlash,
-} from "react-icons/fa";
+import { FaMicrophoneAltSlash, FaVideoSlash, FaMicrophone, FaVideo, FaCamera, FaCopy, FaPhoneSlash } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
 import NameDialog from "../components/meeting/NameDialog";
 import RealTimeTranscript from "../components/meeting/RealTimeTranscript";
+import TalkingAvatar from "../components/TalkingAvatar";
 
 type OfferAnswerPair = {
   offer: {
@@ -33,19 +20,10 @@ type OfferAnswerPair = {
 const Moderator = () => {
   const [myId, setMyID] = useState<string | null>(null);
 
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      {myId ? (
-        <PageContent myId={myId} />
-      ) : (
-        <NameDialog setMyId={setMyID} />
-      )}
-    </Suspense>
-  );
+  return <Suspense fallback={<div>Loading...</div>}>{myId ? <PageContent myId={myId} /> : <NameDialog setMyId={setMyID} />}</Suspense>;
 };
 
 const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
-
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -60,12 +38,8 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
   const webcamVideoRef = useRef<HTMLVideoElement>(null);
   const [pcs, setPcs] = useState<RTCPeerConnection[]>([]);
   const [myIndex, setMyIndex] = useState<number>();
-  const [remoteVideoRefs, setRemoteVideoRefs] = useState<
-    (React.RefObject<HTMLVideoElement> | null)[]
-  >([]);
-  const [remoteStreams, setRemoteStreams] = useState<(MediaStream | null)[]>(
-    []
-  );
+  const [remoteVideoRefs, setRemoteVideoRefs] = useState<(React.RefObject<HTMLVideoElement> | null)[]>([]);
+  const [remoteStreams, setRemoteStreams] = useState<(MediaStream | null)[]>([]);
   const [micEnabled, setMicEnabled] = useState(true);
   const [videoEnabled, setVideoEnabled] = useState(true);
   const [nameList, setNameList] = useState<string[]>();
@@ -76,40 +50,29 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
   const [callLeft, setCallLeft] = useState(0);
 
   const generateShortId = () => {
-    const characters =
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
     let result = "";
     for (let i = 0; i < 5; i++) {
-      result += characters.charAt(
-        Math.floor(Math.random() * characters.length)
-      );
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
     }
     return result;
   };
   const servers = {
     iceServers: [
       {
-        urls: [
-          "stun:stun1.l.google.com:19302",
-          "stun:stun2.l.google.com:19302",
-        ],
+        urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"],
       },
     ],
     iceCandidatePoolSize: 10,
   };
-
 
   const handleCallButtonClick = async () => {
     setInCall(true);
     if (hangupButtonRef.current) hangupButtonRef.current.disabled = false;
     const shortId = generateShortId();
     const callDoc = firestore.collection("calls").doc(shortId);
-    let indexOfOtherConnectedCandidates = callDoc
-      .collection("otherCandidates")
-      .doc(`indexOfConnectedCandidates`);
-    const screenshotDoc = callDoc
-      .collection("screenshotSignal")
-      .doc("screenshotSignalDocument");
+    let indexOfOtherConnectedCandidates = callDoc.collection("otherCandidates").doc(`indexOfConnectedCandidates`);
+    const screenshotDoc = callDoc.collection("screenshotSignal").doc("screenshotSignalDocument");
 
     await setCallId(shortId);
     navigate(`${location.pathname}?id=${callDoc.id}`);
@@ -134,23 +97,12 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
       if (doc.exists) {
         //Check for any newly addded users
         if (
-          doc.data()?.indexOfCurrentUsers[
-            doc.data()?.indexOfCurrentUsers.length - 1
-          ] != myIndex &&
-          doc.data()?.indexOfCurrentUsers[
-            doc.data()?.indexOfCurrentUsers.length - 1
-          ] &&
-          doc.data()?.indexOfCurrentUsers[
-            doc.data()?.indexOfCurrentUsers.length - 1
-          ] > myIndex
+          doc.data()?.indexOfCurrentUsers[doc.data()?.indexOfCurrentUsers.length - 1] != myIndex &&
+          doc.data()?.indexOfCurrentUsers[doc.data()?.indexOfCurrentUsers.length - 1] &&
+          doc.data()?.indexOfCurrentUsers[doc.data()?.indexOfCurrentUsers.length - 1] > myIndex
         ) {
-          const newAddedUser =
-            doc.data()?.indexOfCurrentUsers[
-              doc.data()?.indexOfCurrentUsers.length - 1
-            ];
-          let signalDoc = callDoc
-            .collection("signal")
-            .doc(`signal${newAddedUser}${myIndex}`);
+          const newAddedUser = doc.data()?.indexOfCurrentUsers[doc.data()?.indexOfCurrentUsers.length - 1];
+          let signalDoc = callDoc.collection("signal").doc(`signal${newAddedUser}${myIndex}`);
           console.log(`${newAddedUser} added`);
           console.log(`${myIndex} myIndex`);
           await signalDoc.set({
@@ -167,9 +119,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
               const signal = data?.signal;
               if (signal === 0) {
                 pc = new RTCPeerConnection(servers);
-                candidateNameDoc = callDoc
-                  .collection("otherCandidates")
-                  .doc(`candidate${newAddedUser}${myIndex}`);
+                candidateNameDoc = callDoc.collection("otherCandidates").doc(`candidate${newAddedUser}${myIndex}`);
                 candidateNameDoc.set({ myName: myId, joiner: "" });
                 await localStream?.getTracks().forEach((track) => {
                   pc.addTrack(track, localStream as MediaStream);
@@ -185,45 +135,25 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
                       remoteStream.addTrack(track);
                     });
                     console.log("Remote stream reflected");
-                    await setRemoteStreams((prevStreams) => [
-                      ...prevStreams,
-                      remoteStream,
-                    ]);
+                    await setRemoteStreams((prevStreams) => [...prevStreams, remoteStream]);
                     const candidateDocData = await candidateNameDoc.get();
                     if (candidateDocData.exists) {
                       const joinerName = candidateDocData?.data()?.joiner;
                       console.log(joinerName);
-                      setNameList((prevNameList = []) => [
-                        ...(prevNameList || []),
-                        joinerName,
-                      ]);
+                      setNameList((prevNameList = []) => [...(prevNameList || []), joinerName]);
                     }
                   }
                 };
 
-                offerCandidatesCollection = callDoc
-                  .collection("otherCandidates")
-                  .doc(`candidate${newAddedUser}${myIndex}`)
-                  .collection("offerCandidates");
-                answerCandidatesCollection = callDoc
-                  .collection("otherCandidates")
-                  .doc(`candidate${newAddedUser}${myIndex}`)
-                  .collection("answerCandidates");
+                offerCandidatesCollection = callDoc.collection("otherCandidates").doc(`candidate${newAddedUser}${myIndex}`).collection("offerCandidates");
+                answerCandidatesCollection = callDoc.collection("otherCandidates").doc(`candidate${newAddedUser}${myIndex}`).collection("answerCandidates");
                 pc.onicecandidate = async (event) => {
-                  event.candidate &&
-                    (await offerCandidatesCollection.add(
-                      event.candidate.toJSON()
-                    ));
+                  event.candidate && (await offerCandidatesCollection.add(event.candidate.toJSON()));
                 };
-                offerAnswerPairs = callDoc
-                  .collection("otherCandidates")
-                  .doc(`offerAnswerPairs${newAddedUser}${myIndex}`);
+                offerAnswerPairs = callDoc.collection("otherCandidates").doc(`offerAnswerPairs${newAddedUser}${myIndex}`);
 
                 pc.onicecandidate = async (event) => {
-                  event.candidate &&
-                    (await offerCandidatesCollection.add(
-                      event.candidate.toJSON()
-                    ));
+                  event.candidate && (await offerCandidatesCollection.add(event.candidate.toJSON()));
                 };
 
                 const offerDescription = await pc.createOffer();
@@ -239,8 +169,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
                   answer: null,
                 };
 
-                const currentPairs: OfferAnswerPair[] =
-                  (await offerAnswerPairs.get()).data()?.offerAnswerPairs || [];
+                const currentPairs: OfferAnswerPair[] = (await offerAnswerPairs.get()).data()?.offerAnswerPairs || [];
 
                 await currentPairs.push(offerAnswerPair);
                 console.log(currentPairs);
@@ -249,16 +178,8 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
                 });
                 await signalDoc.set({ signal: 1 });
               } else if (signal == 2) {
-                const answerDescription = new RTCSessionDescription(
-                  (
-                    await offerAnswerPairs.get()
-                  ).data()?.offerAnswerPairs[0].answer
-                );
-                console.log(
-                  "Data on receiver is ",
-                  (await offerAnswerPairs.get()).data()?.offerAnswerPairs[0]
-                    .answer
-                );
+                const answerDescription = new RTCSessionDescription((await offerAnswerPairs.get()).data()?.offerAnswerPairs[0].answer);
+                console.log("Data on receiver is ", (await offerAnswerPairs.get()).data()?.offerAnswerPairs[0].answer);
                 await pc.setRemoteDescription(answerDescription);
 
                 await answerCandidatesCollection.onSnapshot(
@@ -313,9 +234,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
     }
     const callDocHost = firestore.collection("calls").doc(callId);
     const lengthUsers = (await callDocHost.get()).data()?.connectedUsers;
-    let indexOfOtherConnectedCandidates = callDocHost
-      .collection("otherCandidates")
-      .doc(`indexOfConnectedCandidates`);
+    let indexOfOtherConnectedCandidates = callDocHost.collection("otherCandidates").doc(`indexOfConnectedCandidates`);
 
     const myIndex = lengthUsers + 1;
     setMyIndex(lengthUsers);
@@ -331,25 +250,14 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
       if (doc.exists) {
         //Check for any newly addded users
         if (
-          doc.data()?.indexOfCurrentUsers[
-            doc.data()?.indexOfCurrentUsers.length - 1
-          ] != myIndex &&
-          doc.data()?.indexOfCurrentUsers[
-            doc.data()?.indexOfCurrentUsers.length - 1
-          ] &&
-          doc.data()?.indexOfCurrentUsers[
-            doc.data()?.indexOfCurrentUsers.length - 1
-          ] > myIndex
+          doc.data()?.indexOfCurrentUsers[doc.data()?.indexOfCurrentUsers.length - 1] != myIndex &&
+          doc.data()?.indexOfCurrentUsers[doc.data()?.indexOfCurrentUsers.length - 1] &&
+          doc.data()?.indexOfCurrentUsers[doc.data()?.indexOfCurrentUsers.length - 1] > myIndex
         ) {
           setAfterCall((prev) => prev + 1);
           console.log("After Call:", afterCall);
-          const newAddedUser =
-            doc.data()?.indexOfCurrentUsers[
-              doc.data()?.indexOfCurrentUsers.length - 1
-            ];
-          let signalDoc = callDocHost
-            .collection("signal")
-            .doc(`signal${newAddedUser}${myIndex}`);
+          const newAddedUser = doc.data()?.indexOfCurrentUsers[doc.data()?.indexOfCurrentUsers.length - 1];
+          let signalDoc = callDocHost.collection("signal").doc(`signal${newAddedUser}${myIndex}`);
           console.log(`${newAddedUser} added`);
           console.log(`${myIndex} myIndex`);
           await signalDoc.set({
@@ -366,9 +274,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
               const signal = data?.signal;
               if (signal === 0) {
                 pc = new RTCPeerConnection(servers);
-                candidateNameDoc = callDocHost
-                  .collection("otherCandidates")
-                  .doc(`candidate${newAddedUser}${myIndex}`);
+                candidateNameDoc = callDocHost.collection("otherCandidates").doc(`candidate${newAddedUser}${myIndex}`);
                 await localStream?.getTracks().forEach((track) => {
                   pc.addTrack(track, localStream as MediaStream);
                 });
@@ -383,46 +289,26 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
                       remoteStream.addTrack(track);
                     });
                     console.log("Remote stream reflected");
-                    await setRemoteStreams((prevStreams) => [
-                      ...prevStreams,
-                      remoteStream,
-                    ]);
+                    await setRemoteStreams((prevStreams) => [...prevStreams, remoteStream]);
                     const candidateDocData = await candidateNameDoc.get();
                     if (candidateDocData.exists) {
                       const joinerName = candidateDocData?.data()?.joiner;
                       console.log(joinerName);
-                      setNameList((prevNameList = []) => [
-                        ...(prevNameList || []),
-                        joinerName,
-                      ]);
+                      setNameList((prevNameList = []) => [...(prevNameList || []), joinerName]);
                     }
                   }
                 };
 
-                offerCandidatesCollection = callDocHost
-                  .collection("otherCandidates")
-                  .doc(`candidate${newAddedUser}${myIndex}`)
-                  .collection("offerCandidates");
-                answerCandidatesCollection = callDocHost
-                  .collection("otherCandidates")
-                  .doc(`candidate${newAddedUser}${myIndex}`)
-                  .collection("answerCandidates");
+                offerCandidatesCollection = callDocHost.collection("otherCandidates").doc(`candidate${newAddedUser}${myIndex}`).collection("offerCandidates");
+                answerCandidatesCollection = callDocHost.collection("otherCandidates").doc(`candidate${newAddedUser}${myIndex}`).collection("answerCandidates");
                 candidateNameDoc.set({ myName: myId, joiner: "" });
                 pc.onicecandidate = async (event) => {
-                  event.candidate &&
-                    (await offerCandidatesCollection.add(
-                      event.candidate.toJSON()
-                    ));
+                  event.candidate && (await offerCandidatesCollection.add(event.candidate.toJSON()));
                 };
-                offerAnswerPairs = callDocHost
-                  .collection("otherCandidates")
-                  .doc(`offerAnswerPairs${newAddedUser}${myIndex}`);
+                offerAnswerPairs = callDocHost.collection("otherCandidates").doc(`offerAnswerPairs${newAddedUser}${myIndex}`);
 
                 pc.onicecandidate = async (event) => {
-                  event.candidate &&
-                    (await offerCandidatesCollection.add(
-                      event.candidate.toJSON()
-                    ));
+                  event.candidate && (await offerCandidatesCollection.add(event.candidate.toJSON()));
                 };
 
                 const offerDescription = await pc.createOffer();
@@ -438,8 +324,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
                   answer: null,
                 };
 
-                const currentPairs: OfferAnswerPair[] =
-                  (await offerAnswerPairs.get()).data()?.offerAnswerPairs || [];
+                const currentPairs: OfferAnswerPair[] = (await offerAnswerPairs.get()).data()?.offerAnswerPairs || [];
 
                 await currentPairs.push(offerAnswerPair);
                 console.log(currentPairs);
@@ -448,16 +333,8 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
                 });
                 await signalDoc.set({ signal: 1 });
               } else if (signal == 2) {
-                const answerDescription = new RTCSessionDescription(
-                  (
-                    await offerAnswerPairs.get()
-                  ).data()?.offerAnswerPairs[0].answer
-                );
-                console.log(
-                  "Data on receiver is ",
-                  (await offerAnswerPairs.get()).data()?.offerAnswerPairs[0]
-                    .answer
-                );
+                const answerDescription = new RTCSessionDescription((await offerAnswerPairs.get()).data()?.offerAnswerPairs[0].answer);
+                console.log("Data on receiver is ", (await offerAnswerPairs.get()).data()?.offerAnswerPairs[0].answer);
                 await pc.setRemoteDescription(answerDescription);
 
                 await answerCandidatesCollection.onSnapshot(
@@ -491,21 +368,13 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
         console.log("No such document!");
       }
     });
-    const indexUsers = (await indexOfOtherConnectedCandidates.get()).data()
-      ?.indexOfCurrentUsers;
+    const indexUsers = (await indexOfOtherConnectedCandidates.get()).data()?.indexOfCurrentUsers;
     await indexUsers.forEach(async (existingCaller: number) => {
       console.log(`User Index: ${existingCaller}`);
-      let signalDoc = callDocHost
-        .collection("signal")
-        .doc(`signal${myIndex}${existingCaller}`);
+      let signalDoc = callDocHost.collection("signal").doc(`signal${myIndex}${existingCaller}`);
       let offerAnswerPairs: firebase.firestore.DocumentReference<firebase.firestore.DocumentData>;
-      let offerCandidatesCollection = callDocHost
-        .collection("otherCandidates")
-        .doc(`candidate${myIndex}${existingCaller}`)
-        .collection("offerCandidates");
-      let candidateNameDoc = callDocHost
-        .collection("otherCandidates")
-        .doc(`candidate${myIndex}${existingCaller}`);
+      let offerCandidatesCollection = callDocHost.collection("otherCandidates").doc(`candidate${myIndex}${existingCaller}`).collection("offerCandidates");
+      let candidateNameDoc = callDocHost.collection("otherCandidates").doc(`candidate${myIndex}${existingCaller}`);
       let pc: RTCPeerConnection;
 
       signalDoc.onSnapshot(async (doc) => {
@@ -515,9 +384,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
 
           if (signal === 1) {
             pc = new RTCPeerConnection(servers);
-            offerAnswerPairs = callDocHost
-              .collection("otherCandidates")
-              .doc(`offerAnswerPairs${myIndex}${existingCaller}`);
+            offerAnswerPairs = callDocHost.collection("otherCandidates").doc(`offerAnswerPairs${myIndex}${existingCaller}`);
             console.log(`pair is ${myIndex}${existingCaller}`);
             candidateNameDoc.update({ joiner: "Moderator" });
 
@@ -536,18 +403,12 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
                   remoteStream.addTrack(track);
                 });
                 console.log("Remote stream reflected");
-                await setRemoteStreams((prevStreams) => [
-                  ...prevStreams,
-                  remoteStream,
-                ]);
+                await setRemoteStreams((prevStreams) => [...prevStreams, remoteStream]);
                 const candidateDocData = await candidateNameDoc.get();
                 if (candidateDocData.exists) {
                   const existingName = candidateDocData?.data()?.myName;
                   console.log(existingName);
-                  setNameList((prevNameList = []) => [
-                    ...(prevNameList || []),
-                    existingName,
-                  ]);
+                  setNameList((prevNameList = []) => [...(prevNameList || []), existingName]);
                 }
               }
             };
@@ -558,19 +419,11 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
               .collection("answerCandidates");
             if (pc)
               pc.onicecandidate = async (event) => {
-                event.candidate &&
-                  (await answerCandidatesCollection.add(
-                    event.candidate.toJSON()
-                  ));
+                event.candidate && (await answerCandidatesCollection.add(event.candidate.toJSON()));
               };
 
-            const offerDescription = new RTCSessionDescription(
-              (await offerAnswerPairs.get()).data()?.offerAnswerPairs[0].offer
-            );
-            console.log(
-              "offer is ",
-              (await offerAnswerPairs.get()).data()?.offerAnswerPairs
-            );
+            const offerDescription = new RTCSessionDescription((await offerAnswerPairs.get()).data()?.offerAnswerPairs[0].offer);
+            console.log("offer is ", (await offerAnswerPairs.get()).data()?.offerAnswerPairs);
             await pc.setRemoteDescription(offerDescription);
 
             const answerDescription = await pc.createAnswer();
@@ -581,8 +434,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
               type: answerDescription.type,
             };
 
-            const currentPair = (await offerAnswerPairs.get()).data()
-              ?.offerAnswerPairs[0];
+            const currentPair = (await offerAnswerPairs.get()).data()?.offerAnswerPairs[0];
             console.log("Current pair is ", currentPair);
             currentPair.answer = answer;
 
@@ -627,10 +479,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
                 });
               },
               (error) => {
-                console.error(
-                  "Error listening for offerCandidates changes:",
-                  error
-                );
+                console.error("Error listening for offerCandidates changes:", error);
               }
             );
             setPcs((prevPcs) => [...prevPcs, pc]);
@@ -738,10 +587,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
 
     pcs.forEach((pc, index) => {
       const listener = (event: Event) => {
-        handleIceConnectionStateChange(
-          event.currentTarget as RTCPeerConnection,
-          index
-        );
+        handleIceConnectionStateChange(event.currentTarget as RTCPeerConnection, index);
       };
       listeners.set(pc, listener);
       pc.addEventListener("connectionstatechange", listener);
@@ -755,11 +601,9 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
   }, [pcs, handleIceConnectionStateChange]);
 
   useEffect(() => {
-    const newRemoteVideoRefs = remoteStreams.map(() =>
-        React.createRef<HTMLVideoElement>()
-      );
-      setRemoteVideoRefs(newRemoteVideoRefs as (React.RefObject<HTMLVideoElement> | null)[]);
-      
+    const newRemoteVideoRefs = remoteStreams.map(() => React.createRef<HTMLVideoElement>());
+    setRemoteVideoRefs(newRemoteVideoRefs as (React.RefObject<HTMLVideoElement> | null)[]);
+
     console.log(remoteStreams);
   }, [remoteStreams]);
 
@@ -836,23 +680,59 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
     setMicEnabled(!micEnabled);
     console.log(stream);
     if (stream) {
-      const audioTrack = stream
-        .getTracks()
-        .find((track) => track.kind === "audio");
+      const audioTrack = stream.getTracks().find((track) => track.kind === "audio");
       if (audioTrack) {
         audioTrack.enabled = !audioTrack.enabled;
       }
     }
     if (localStream) {
       console.log("Local stream is ", localStream);
-      const audioTrack = localStream
-        .getTracks()
-        .find((track) => track.kind === "audio");
+      const audioTrack = localStream.getTracks().find((track) => track.kind === "audio");
       if (audioTrack) {
         audioTrack.enabled = !audioTrack.enabled;
       }
     }
   };
+
+  const toggleMicFromComponent = (active: boolean) =>{
+    if(micEnabled && !active)
+    {
+      setMicEnabled(!micEnabled);
+      console.log(stream);
+      if (stream) {
+        const audioTrack = stream.getTracks().find((track) => track.kind === "audio");
+        if (audioTrack) {
+          audioTrack.enabled = !audioTrack.enabled;
+        }
+      }
+      if (localStream) {
+        console.log("Local stream is ", localStream);
+        const audioTrack = localStream.getTracks().find((track) => track.kind === "audio");
+        if (audioTrack) {
+          audioTrack.enabled = !audioTrack.enabled;
+        }
+      }
+    }
+    if(!micEnabled && active)
+    {
+      console.log("Mic setting to active")
+      setMicEnabled(!micEnabled);
+      console.log(stream);
+      if (stream) {
+        const audioTrack = stream.getTracks().find((track) => track.kind === "audio");
+        if (audioTrack) {
+          audioTrack.enabled = !audioTrack.enabled;
+        }
+      }
+      if (localStream) {
+        console.log("Local stream is ", localStream);
+        const audioTrack = localStream.getTracks().find((track) => track.kind === "audio");
+        if (audioTrack) {
+          audioTrack.enabled = !audioTrack.enabled;
+        }
+      }
+    }
+  }
 
   const handleVideoToggle = async () => {
     setVideoEnabled(!videoEnabled);
@@ -868,15 +748,10 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
         await stream?.removeTrack(stream.getVideoTracks()[0]);
         await stream?.addTrack(newStream.getVideoTracks()[0]);
         pcs.forEach((pc) => {
-          const sender = pc
-            .getSenders()
-            .find((sender) => sender.track?.kind === "video");
+          const sender = pc.getSenders().find((sender) => sender.track?.kind === "video");
           sender!.replaceTrack(newStream.getVideoTracks()[0]!);
         });
-        console.log(
-          "Stream tracks after enabling is ",
-          stream?.getVideoTracks()
-        );
+        console.log("Stream tracks after enabling is ", stream?.getVideoTracks());
       } catch (error) {
         console.error("Error re-enabling video:", error);
       }
@@ -886,10 +761,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
         if (videoTrack) {
           videoTrack.stop();
         }
-        console.log(
-          "Stream tracks after disabling is ",
-          stream?.getVideoTracks()
-        );
+        console.log("Stream tracks after disabling is ", stream?.getVideoTracks());
 
         // Create a new MediaStream with a "camera disabled" image
         const canvas = document.createElement("canvas");
@@ -906,9 +778,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
           }
 
           pcs.forEach((pc) => {
-            const sender = pc
-              .getSenders()
-              .find((sender) => sender.track?.kind === "video");
+            const sender = pc.getSenders().find((sender) => sender.track?.kind === "video");
             sender?.replaceTrack(stream.getVideoTracks()[0]);
           });
 
@@ -929,26 +799,12 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
       <div className="flex mx-auto sticky gap-4 bg-zinc-900 border border-gray-800 w-fit p-2 px-5 rounded-xl max-md:flex-col">
         <div className="flex mx-auto justify-center gap-2">
           {/* Mic Toggle */}
-          <button
-            onClick={handleMicToggle}
-            className={`p-3 rounded-full ${
-              micEnabled ? "bg-green-500" : "bg-red-500"
-            } text-white`}
-          >
-            {micEnabled ? (
-              <FaMicrophone size={15} />
-            ) : (
-              <FaMicrophoneAltSlash size={15} />
-            )}
+          <button onClick={handleMicToggle} className={`p-3 rounded-full ${micEnabled ? "bg-green-500" : "bg-red-500"} text-white`}>
+            {micEnabled ? <FaMicrophone size={15} /> : <FaMicrophoneAltSlash size={15} />}
           </button>
 
           {/* Video Toggle */}
-          <button
-            onClick={handleVideoToggle}
-            className={`p-3 rounded-full ${
-              videoEnabled ? "bg-green-500" : "bg-red-500"
-            } text-white`}
-          >
+          <button onClick={handleVideoToggle} className={`p-3 rounded-full ${videoEnabled ? "bg-green-500" : "bg-red-500"} text-white`}>
             {videoEnabled ? <FaVideo size={15} /> : <FaVideoSlash size={15} />}
           </button>
 
@@ -957,12 +813,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
             onClick={copyLink}
             className="p-3 rounded-full disabled:cursor-not-allowed px-2 py-1 disabled:bg-green-400 bg-green-500 text-white"
           >
-            <div
-              className={`${
-                inCall ? "" : "cursor-not-allowed"
-              } px-2 py-1 text-white rounded-md`}
-              title="Copy Link"
-            >
+            <div className={`${inCall ? "" : "cursor-not-allowed"} px-2 py-1 text-white rounded-md`} title="Copy Link">
               <FaCopy size={15} />
             </div>
           </button>
@@ -971,12 +822,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
             // onClick={takeScreenshot}
             className="p-3 rounded-full disabled:cursor-not-allowed px-2 py-1 disabled:bg-green-400 bg-green-500 text-white"
           >
-            <div
-              className={`${
-                inCall ? "" : "cursor-not-allowed"
-              } px-2 py-1 text-white rounded-md `}
-              title="Take Screenshot"
-            >
+            <div className={`${inCall ? "" : "cursor-not-allowed"} px-2 py-1 text-white rounded-md `} title="Take Screenshot">
               <FaCamera size={15} />
             </div>
           </button>
@@ -991,12 +837,10 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
             <FaPhoneSlash size={15} />
           </button>
         </div>
-        <RealTimeTranscript roomId={callId!} userId={myId} isLast={true}/>
+        <RealTimeTranscript roomId={callId!} userId={myId} manager={true} />
       </div>
 
-      <div
-        className={`flex mx-auto my-5 justify-center w-full gap-2 flex-wrap`}
-      >
+      <div className={`flex mx-auto my-5 justify-center w-full gap-2 flex-wrap`}>
         <div
           className={`pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] border-gray-800 border text-blue-400`}
         >
@@ -1011,9 +855,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
               className={`w-[500px] aspect-video mx-auto rounded-b-md bg-[#202124]`}
             ></video>
           )}
-          {!isClient && (
-            <div className="max-sm:w-[90%] max-lg:w-full w-[500px] aspect-video mx-auto rounded-md bg-[#202124] "></div>
-          )}
+          {!isClient && <div className="max-sm:w-[90%] max-lg:w-full w-[500px] aspect-video mx-auto rounded-md bg-[#202124] "></div>}
         </div>
 
         {remoteVideoRefs.map((_, index) => (
@@ -1028,19 +870,16 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
             ) : (
               <h3 className="text-xl font-medium mb-2">Remote Stream</h3>
             )}
-            {isClient && (
-              <video
-                ref={remoteVideoRefs[index]}
-                autoPlay
-                playsInline
-                className="w-[500px] aspect-video mx-auto rounded-b-md bg-[#202124]"
-              ></video>
-            )}
-            {!isClient && (
-              <div className="max-sm:w-[90%] max-lg:w-full w-[500px] aspect-video mx-auto rounded-md bg-[#202124] "></div>
-            )}
+            {isClient && <video ref={remoteVideoRefs[index]} autoPlay playsInline className="w-[500px] aspect-video mx-auto rounded-b-md bg-[#202124]"></video>}
+            {!isClient && <div className="max-sm:w-[90%] max-lg:w-full w-[500px] aspect-video mx-auto rounded-md bg-[#202124] "></div>}
           </div>
         ))}
+      </div>
+      <div
+        className={`pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] border-gray-800 border text-blue-400 mx-auto`}
+      >
+        <h3 className="text-xl font-medium mb-2 mx-auto w-full text-center">Your AI Assistant</h3>
+        <TalkingAvatar toggleMicFromComponent = {toggleMicFromComponent}/>
       </div>
     </div>
   );

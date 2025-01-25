@@ -6,8 +6,8 @@ import hark from "hark";
 const RealTimeTranscript: React.FC<{
   roomId: string;
   userId: string;
-  isLast: boolean;
-}> = ({ roomId, userId, isLast }) => {
+  manager: boolean;
+}> = ({ roomId, userId, manager }) => {
   const [status, setStatus] = useState<"RECORDING" | "STOPPED">("STOPPED");
   const [recorder, setRecorder] = useState<RecordRTC | null>(null);
   const [speechEvents, setSpeechEvents] = useState<{ start: number; stop: number }[]>([]);
@@ -15,6 +15,7 @@ const RealTimeTranscript: React.FC<{
   const speechEventsRef = useRef<{ start: number; stop: number }[]>([]);
   const harkRef = useRef<any>(null);
   const recordingStartTimeRef = useRef<number | null>(null); // To track when recording starts
+  const hasEffectRunRef = useRef(false); // To track if useEffect has run
 
   const startRecording = async () => {
     if (status === "RECORDING") {
@@ -94,7 +95,7 @@ const RealTimeTranscript: React.FC<{
       formData.append("audio", blob, `recording-${Date.now()}.webm`);
       formData.append("roomId", roomId);
       formData.append("timestamps", JSON.stringify(speechEventsRef.current));
-      formData.append("isLast", isLast.toString());
+      formData.append("isLast", manager.toString());
 
       // Stop the media stream
       if (mediaStreamRef.current) {
@@ -128,8 +129,7 @@ const RealTimeTranscript: React.FC<{
         {
           method: "POST",
           headers: {
-            // Authorization: `Bearer ${localStorage.getItem("bearerToken")}`, // Assuming the token is stored in localStorage
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3OTRkNjZkYzdiYzYyMTQxYTU1YzM1NSIsImVtYWlsIjoibmlzaHVAZXhhbXBsZS5jb20iLCJyb2xlIjoiRU1QTE9ZRUUiLCJpYXQiOjE3Mzc4MDc0NjksImV4cCI6MTczNzg5Mzg2OX0.zXbifjU3Ot5pNN7rebgRWivfjuh05E8vsUbll5pegAI`, // Assuming the token is stored in localStorage
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // Assuming the token is stored in localStorage
           },
           body: formData,
         }
@@ -147,24 +147,43 @@ const RealTimeTranscript: React.FC<{
     }
   };
 
+  // Start recording when the component mounts
+  useEffect(() => {
+    if (hasEffectRunRef.current) return; // Prevent useEffect from running again
+    hasEffectRunRef.current = true; // Mark useEffect as run
+
+    startRecording();
+  }, []);
+
   return (
     <div className="self-center">
       <div className="flex max-md:flex-col justify-center gap-3">
         <div className="md:flex-row flex-col flex gap-2 items-center">
-          <button
-            onClick={startRecording}
-            disabled={status === "RECORDING"}
-            className="disabled:bg-green-200 rounded-xl bg-green-500 disabled:cursor-not-allowed p-2"
-          >
-            Start Recording
-          </button>
-          <button
+          {/* Conditionally render the Start Recording button */}
+          {status === "STOPPED" && (
+            <button
+              onClick={startRecording}
+              className="rounded-xl bg-green-500 p-2"
+            >
+              Start Recording
+            </button>
+          )}
+
+          {/* Always show the Stop Recording button */}
+          {status === "RECORDING" && <button
             onClick={stopRecording}
-            disabled={status === "STOPPED"}
             className="disabled:bg-green-200 rounded-xl bg-green-500 disabled:cursor-not-allowed p-2"
           >
             Stop Recording
-          </button>
+          </button>}
+
+          {/* Show the blinking dot to the right of the Stop Recording button when recording */}
+          {status === "RECORDING" && (
+            <div className="flex items-center gap-2 text-red-600 font-bold">
+              <div className="w-3 h-3 bg-red-600 rounded-full animate-pulse"></div>
+              <span>Recording...</span>
+            </div>
+          )}
         </div>
       </div>
     </div>
