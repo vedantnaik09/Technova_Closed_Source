@@ -2,6 +2,7 @@ import "regenerator-runtime/runtime"
 import React, { useState, useEffect } from "react";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
 import { useParams } from "react-router-dom";
+//@ts-ignore
 import { TalkingHead } from "../modules/talkinghead.mjs";
 
 // Interface for TalkingHead configuration
