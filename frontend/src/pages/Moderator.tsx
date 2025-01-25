@@ -1009,12 +1009,12 @@ const Moderator = () => {
         {remoteVideoRefs.map((_, index) => (
           <div
             key={index}
-            className={`bg-gray-100 pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] ${
+            className={`pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] border-gray-800 border text-blue-400 ${
               remoteStreams[index] ? "" : "hidden"
             }`}
           >
             {nameList && nameList[index] ? (
-              <h3 className="text-xl font-medium mb-2">{nameList[index]}</h3>
+              <h3 className="text-xl font-medium mb-2 mx-auto w-full text-center">{nameList[index]}</h3>
             ) : (
               <h3 className="text-xl font-medium mb-2">Remote Stream</h3>
             )}

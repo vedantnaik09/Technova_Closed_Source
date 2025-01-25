@@ -32,20 +32,20 @@ type OfferAnswerPair = {
   } | null;
 };
 const Meet = () => {
-  const [myName, setMyName] = useState<string | null>(null);
+  const [myId, setMyID] = useState<string | null>(null);
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      {myName ? (
-        <PageContent myName={myName} />
+      {myId ? (
+        <PageContent myId={myId} />
       ) : (
-        <NameDialog setMyName={setMyName} />
+        <NameDialog setMyId={setMyID} />
       )}
     </Suspense>
   );
 };
 
-const PageContent: React.FC<{ myName: string }> = ({ myName }) => {
+const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -189,7 +189,7 @@ const PageContent: React.FC<{ myName: string }> = ({ myName }) => {
                 candidateNameDoc = callDocHost
                   .collection("otherCandidates")
                   .doc(`candidate${newAddedUser}${myIndex}`);
-                candidateNameDoc.set({ myName: myName, joiner: "" });
+                candidateNameDoc.set({ myId: myId, joiner: "" });
                 await localStream?.getTracks().forEach((track) => {
                   pc.addTrack(track, localStream as MediaStream);
                 });
@@ -340,7 +340,7 @@ const PageContent: React.FC<{ myName: string }> = ({ myName }) => {
               .collection("otherCandidates")
               .doc(`offerAnswerPairs${myIndex}${existingCaller}`);
             console.log(`pair is ${myIndex}${existingCaller}`);
-            candidateNameDoc.update({ joiner: myName });
+            candidateNameDoc.update({ joiner: myId });
 
             await localStream?.getTracks().forEach((track) => {
               pc.addTrack(track, localStream as MediaStream);
@@ -886,10 +886,10 @@ const PageContent: React.FC<{ myName: string }> = ({ myName }) => {
   }, [pcs, nameList]);
 
   return (
-    <div className="mx-auto p-5 ">
-      <h2 className="text-2xl font-semibold my-4">Multi-RTC</h2>
+    <div className="mx-auto p-5 w-full text-black bg-gradient-to-b from-indigo-600/10 to-transparent">
+      <h2 className="text-2xl font-semibold my-4 text-white">Meet - {callId}</h2>
       {accessGiven && (
-        <div className="my-5 flex sticky justify-center gap-4 bg-black w-fit mx-auto p-2 rounded-xl bottom-2 left-0 right-0">
+        <div className="flex mx-auto sticky gap-4 bg-zinc-900 border border-gray-800 w-fit p-2 px-5 rounded-xl max-md:flex-col my-5">
           {/* Mic Toggle */}
           <button
             onClick={handleMicToggle}
@@ -957,9 +957,9 @@ const PageContent: React.FC<{ myName: string }> = ({ myName }) => {
 
       <div className={`flex mx-auto justify-center w-full gap-2 flex-wrap`}>
         <div
-          className={`bg-gray-100 pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px]`}
+          className={`pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] border-gray-800 border text-blue-400`}
         >
-          <h3 className="text-xl font-medium mb-2">You</h3>
+          <h3 className="text-xl font-medium mb-2 text-center">You</h3>
           {isClient && (
             <video
               id="webcamVideo"
@@ -977,14 +977,14 @@ const PageContent: React.FC<{ myName: string }> = ({ myName }) => {
         {remoteVideoRefs.map((_, index) => (
           <div
             key={index}
-            className={`bg-gray-100 pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] ${
+            className={`pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] border-gray-800 border text-blue-400 ${
               remoteStreams[index] ? "" : "hidden"
             }`}
           >
             {nameList && nameList[index] ? (
-              <h3 className="text-xl font-medium mb-2">{nameList[index]}</h3>
+              <h3 className="text-xl font-medium mb-2 text-center">{nameList[index]}</h3>
             ) : (
-              <h3 className="text-xl font-medium mb-2">Remote Stream</h3>
+              <h3 className="text-xl font-medium mb-2 text-center">Remote Stream</h3>
             )}
             {isClient && (
               <video
