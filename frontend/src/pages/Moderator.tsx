@@ -837,7 +837,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
             <FaPhoneSlash size={15} />
           </button>
         </div>
-        <RealTimeTranscript roomId={callId!} userId={myId} isLast={true} />
+        <RealTimeTranscript roomId={callId!} userId={myId} manager={true} />
       </div>
 
       <div className={`flex mx-auto my-5 justify-center w-full gap-2 flex-wrap`}>
