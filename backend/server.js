@@ -5,17 +5,25 @@ require('dotenv').config();
 
 const app = express();
 const path = require('path');
+const fs = require('fs');
 
-// Middleware
+
 app.use(cors());
 app.use(express.json());
 app.use('/uploads/resume', express.static(path.join(__dirname, 'uploads/resume')));
+const audioDir = path.join(__dirname, 'uploads/audios');
+if (!fs.existsSync(audioDir)) {
+  fs.mkdirSync(audioDir, { recursive: true });
+  console.log('Directory created:', audioDir);
+}
+app.use('/uploads/audios', express.static(path.join(__dirname, 'uploads/audios')));
 
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/companies', require('./routes/companyRoutes'));
 app.use('/api/projects', require('./routes/projectRoutes'));
 app.use('/api/tasks', require('./routes/taskRoutes'));
 app.use('/api/meetings', require('./routes/meetingRoutes'));
+app.use('/api/audios', require('./routes/audioRoutes'));
 
 // Database Connection
 mongoose.connect(process.env.MONGODB_URI, {

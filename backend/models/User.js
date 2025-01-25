@@ -27,7 +27,7 @@ const UserSchema = new mongoose.Schema(
     },
     resume: {
       type: String,
-      default: 'http://localhost:5000/resume.pdf', // Default URL for the resume
+      default: 'http://172.31.0.36:5000/uploads/resume.pdf', // Default URL for the resume
     },
     companyId: {
       type: mongoose.Schema.Types.ObjectId,
