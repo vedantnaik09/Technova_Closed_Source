@@ -1,3 +1,5 @@
+require('dotenv').config();  // Load environment variables from .env file
+const { MongoClient } = require('mongodb');
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
@@ -8,25 +10,64 @@ const logFile = path.join(
   "metrics.json"
 );
 console.log(logFile);
+
+const uri = process.env.MONGODB_URI;  // Mongo URI from the .env file
+const dbName = 'test';
+const collectionName = 'logs';
+
+console.log(uri);
+
 // Predefined constants
 const ROLLING_WINDOW_MS = 12000; // Rolling window duration (30 seconds)
 const CHECK_INTERVAL_MS = 6000; // Check interval (6 seconds)
 const LOW_ACTIVITY_THRESHOLD = 20; // Minimum changes in a window to avoid low activity notification
-
-
+const INTERVAL_TO_MONGO = 12000;  // Interval to insert data to MongoDB (30 seconds)
 
 // Function to load data from the metrics file
 function loadDataFromFile() {
   try {
     // Read the file synchronously
     const data = fs.readFileSync(logFile, 'utf8');
+    fs.writeFileSync(logFile, '');  // Clear the file after reading
+    console.log(`[${data}]`) // Wrap the content in square brackets
     
     // Parse the JSON content and return it
-    return JSON.parse(data);
+    return JSON.parse(`[${data.slice(0, -2)}]`);
   } catch (err) {
     // If an error occurs (e.g., file not found or empty), log the error
     console.error('Error reading the file:', err);
     return [];  // Return an empty array in case of error
+  }
+}
+
+
+// Function to connect to MongoDB
+async function connectToMongo() {
+  const client = new MongoClient(uri);
+  await client.connect();
+  console.log('Connected to MongoDB');
+  return client;
+}
+
+
+// Function to insert data into MongoDB
+async function insertDataToMongo(data : Array<Object>) {
+  let client;
+  try {
+    client = await connectToMongo();
+    const db = client.db(dbName);
+    const collection = db.collection(collectionName);
+    
+    const result = await collection.insertMany(data);
+    console.log(`${result.insertedCount} documents were inserted`);
+    return result.acknowledged;
+  } catch (err) {
+    console.error('Error inserting data:', err);
+    return false;
+  } finally {
+    if (client) {
+      await client.close();
+    }
   }
 }
 
@@ -43,7 +84,7 @@ export async function activate(context: vscode.ExtensionContext) {
       placeHolder: "e.g., 12345",
       validateInput: (text) => {
         return text.trim() === "" ? "Employee ID cannot be empty" : null;
-      },
+      }, 
     });
 
     if (input) {
@@ -119,10 +160,10 @@ export async function activate(context: vscode.ExtensionContext) {
     };
 
     if (Object.keys(rollingChanges).length > 0 || true) {
-      fs.appendFileSync(logFile, JSON.stringify(data) + "\n");
+      fs.appendFileSync(logFile, JSON.stringify(data) + ",\n");
     }
 
-    console.log(`Metrics logged: ${JSON.stringify(data, null, 2)}`);
+    // console.log(`Metrics logged: ${JSON.stringify(data, null, 2)}`);
     return totalChanges;
   };
 
@@ -140,6 +181,27 @@ export async function activate(context: vscode.ExtensionContext) {
       );
     }
   }, ROLLING_WINDOW_MS); // Check at intervals
+
+  const mongoInterval = setInterval(async () => {
+    // Load the existing data from the metrics file
+    const data = loadDataFromFile();
+    if (data.length > 0) {
+      // Insert the data into MongoDB
+      const success = await insertDataToMongo(data);
+      
+      // Only clear the file if insertion was successful
+      if (success) {
+        fs.writeFileSync(logFile, '');
+        console.log('Data successfully inserted to MongoDB and file cleared');
+      } else {
+        console.log('Failed to insert data to MongoDB, keeping file content');
+      }
+      fs.writeFileSync(logFile, '');
+    } else {
+      console.log('No data to insert');
+    }
+  }, INTERVAL_TO_MONGO);  // 1 hour in milliseconds
+
   // Command to manually enter Employee ID
   const disposable = vscode.commands.registerCommand(
     "prod-tracker.enterEmployeeId",
@@ -170,6 +232,7 @@ export async function activate(context: vscode.ExtensionContext) {
     dispose: () => {
       clearInterval(interval);
       clearInterval(inactivityCheckinterval);
+      clearInterval(mongoInterval);
     },
   });
 }
