@@ -3,13 +3,43 @@ import json
 from Resume_Analyser import Resume_summarizer  # Ensure this module is correctly imported
 import json
 import os
+import requests
 from Deegram import Transcriber
 from dotenv import load_dotenv
 from google import genai
 from anthropic import AnthropicVertex
 load_dotenv()
-def get_resume(user_id):
-    pass
+def get_resume(user_ids):
+    # Folder path where you want to save the PDFs
+    folder_path = r"AI\Models\Resume"
+
+    # Ensure the folder exists, if not create it
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+
+    # Iterate over each user ID
+    for user_id in user_ids:
+        # Construct the PDF URL for the current user
+        pdf_url = f"http://172.31.0.36:5000/uploads/resume/{user_id}.pdf"
+
+        # Extract the PDF file name from the URL
+        pdf_file_name = os.path.basename(pdf_url)
+
+        # Full path to save the PDF
+        pdf_save_path = os.path.join(folder_path, pdf_file_name)
+
+        # Download the PDF
+        response = requests.get(pdf_url)
+
+        # Check if the request was successful
+        if response.status_code == 200:
+            # Save the PDF to the specified folder
+            with open(pdf_save_path, 'wb') as pdf_file:
+                pdf_file.write(response.content)
+            print(f"PDF for user {user_id} successfully saved to {pdf_save_path}")
+        else:
+            print(f"Failed to download PDF for user {user_id}. Status code: {response.status_code}")
+
 def summarize_resumes(users_id,resume_folder, output_file):
     """
     Summarizes all PDF resumes in the specified folder and saves the results to a JSON file.
@@ -17,6 +47,7 @@ def summarize_resumes(users_id,resume_folder, output_file):
     :param resume_folder: Path to the folder containing resume PDFs.
     :param output_file: Path to the output JSON file where summarized results will be saved.
     """
+    get_resume(users_id)
     # Initialize a list to store summarized results
     summarized_resumes = []
 
@@ -28,6 +59,7 @@ def summarize_resumes(users_id,resume_folder, output_file):
             
             # Call the Resume_summarizer function
             summary = Resume_summarizer(resume_path)
+            os.remove(resume_path)
             
             # Append the result to the list with a sequential number
             summarized_resumes.append({
