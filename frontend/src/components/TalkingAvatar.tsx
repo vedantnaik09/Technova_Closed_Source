@@ -21,13 +21,12 @@ interface NextQuestionResponse {
   question: string;
 }
 
-const TalkingAvatar: React.FC = () => {
+const TalkingAvatar: React.FC<{toggleMicFromComponent : (active: boolean) => void}> = ({toggleMicFromComponent}) => {
   const { applicationId } = useParams<{ applicationId: string }>();
   const [head, setHead] = useState<TalkingHead | null>(null);
   const [isTranscriptionActive, setIsTranscriptionActive] = useState<boolean>(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [nextQuestion, setNextQuestion] = useState<string>("");
-  const [timeRemaining, setTimeRemaining] = useState<number>(1000);
   const [isInterviewActive, setIsInterviewActive] = useState<boolean>(true);
   
   const { 
@@ -73,50 +72,6 @@ const TalkingAvatar: React.FC = () => {
     }
   }, [applicationId]);
     
-  // Timer effect
-  useEffect(() => {
-    if (!isInterviewActive) return;
-
-    const timer = setInterval(() => {
-      setTimeRemaining((prevTime) => {
-        if (prevTime <= 1) {
-          clearInterval(timer);
-          handleEndInterview();
-          return 0;
-        }
-        return prevTime - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [isInterviewActive]);
-
-  const handleEndInterview = async () => {
-    try {
-      // const response = await fetch(`http://localhost:8000/interview/${applicationId}/end`, {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      // });
-
-      // if (!response.ok) {
-      //   throw new Error("Failed to end interview");
-      // }
-
-      // const data = await response.json();
-      // console.log("Interview ended:", data);
-      setIsInterviewActive(false);
-      setIsTranscriptionActive(false);
-      SpeechRecognition.stopListening();
-      
-      if (head) {
-        head.speakText("Thank you for your time. The interview has ended.");
-      }
-    } catch (error) {
-      console.error("Error ending interview:", error);
-    }
-  };
 
   // Avatar initialization effect
   useEffect(() => {
@@ -182,6 +137,7 @@ const TalkingAvatar: React.FC = () => {
     
     if (isTranscriptionActive) {
       SpeechRecognition.stopListening();
+      toggleMicFromComponent(true);
       setIsTranscriptionActive(false);
       // Call backend with current transcript when stopping
       if (transcript) {
@@ -191,6 +147,7 @@ const TalkingAvatar: React.FC = () => {
     } else {
       resetTranscript();
       SpeechRecognition.startListening({ continuous: true });
+      toggleMicFromComponent(false);
       setIsTranscriptionActive(true);
     }
   };
@@ -232,44 +189,16 @@ const TalkingAvatar: React.FC = () => {
   };
 
   return (
-    <div
-      style={{
-        width: "100%",
-        maxWidth: "800px",
-        margin: "auto",
-        backgroundColor: "#202020",
-        color: "white",
-        padding: "20px",
-      }}
-    >
-      <div 
-        style={{ 
-          textAlign: "center", 
-          fontSize: "24px", 
-          fontWeight: "bold",
-          color: timeRemaining < 60 ? "red" : "white",
-          marginBottom: "20px"
-        }}
-      >
-        Time Remaining: {formatTime(timeRemaining)}
-      </div>
+    <div className="w-full max-w-4xl mx-auto bg-gray-900 text-white p-5 text-sm">
+      <div id="avatar" className="w-full h-48 -mt-10"></div>
 
-      <div id="avatar" style={{ width: "100%", height: "400px" }}></div>
-
-      <div id="controls" style={{ marginTop: "20px", textAlign: "center" }}>
+      <div id="controls" className="mt-5 text-center">
         <button
           onClick={handleTranscriptionToggle}
           disabled={!isInterviewActive}
-          style={{
-            padding: "10px 20px",
-            fontSize: "18px",
-            backgroundColor: !isInterviewActive ? "gray" : isTranscriptionActive ? "red" : "green",
-            color: "white",
-            border: "none",
-            borderRadius: "5px",
-            cursor: isInterviewActive ? "pointer" : "not-allowed",
-            opacity: isInterviewActive ? 1 : 0.7,
-          }}
+          className={`px-5 py-2 text-base font-semibold text-white rounded-lg transition-colors duration-200 ${
+            !isInterviewActive ? 'bg-gray-500 cursor-not-allowed' : isTranscriptionActive ? 'bg-red-500' : 'bg-green-500'
+          }`}
         >
           {!isInterviewActive 
             ? "Interview Ended" 
@@ -277,36 +206,16 @@ const TalkingAvatar: React.FC = () => {
               ? "Stop Transcription" 
               : "Start Transcription"}
         </button>
-        <p
-          style={{
-            fontSize: "16px",
-            backgroundColor: "#333",
-            padding: "10px",
-            borderRadius: "8px",
-            minHeight: "50px",
-            color: "#fff",
-            marginTop: "20px",
-          }}
-        >
+        <p className="mt-2 p-3 bg-gray-700 rounded-lg text-white">
           <strong>What you spoke:</strong>{" "}
           {transcript || "Click the button to start speaking."}
         </p>
-        <p
-          style={{
-            fontSize: "16px",
-            backgroundColor: "#444",
-            padding: "10px",
-            borderRadius: "8px",
-            minHeight: "50px",
-            color: "#fff",
-            marginTop: "20px",
-          }}
-        >
+        <p className="mt-2 p-3 bg-gray-800 rounded-lg text-white">
           <strong>Question:</strong> {nextQuestion || "Waiting for the question..."}
         </p>
       </div>
 
-      <div id="loading" style={{ textAlign: "center", marginTop: "20px" }}></div>
+      <div id="loading" className="text-center mt-5"></div>
     </div>
   );
 };

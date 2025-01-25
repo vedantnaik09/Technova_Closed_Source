@@ -2511,16 +2511,16 @@ class TalkingHead {
   * @param {string} lang Language
   * @param {string} [path="./"] Module path
   */
-  lipsyncGetProcessor(lang, path="./") {
-    if ( !this.lipsync.hasOwnProperty(lang) ) {
+  lipsyncGetProcessor(lang, path = "./") {
+    if (!this.lipsync.hasOwnProperty(lang)) {
       const moduleName = path + 'lipsync-' + lang.toLowerCase() + '.mjs';
       const className = 'Lipsync' + lang.charAt(0).toUpperCase() + lang.slice(1);
-      import(moduleName).then( module => {
+  
+      import(/* @vite-ignore */ moduleName).then(module => {
         this.lipsync[lang] = new module[className];
       });
     }
   }
-
   /**
   * Preprocess text for tts/lipsync, including:
   * - convert symbols/numbers to words
