@@ -16,7 +16,7 @@ export default function Login() {
     try {
       setLoading(true);
       await signIn(email, password);
-      navigate('/dashboard');
+      navigate('/dashboardEmployee');
     } catch (error) {
       setLoading(false);
     }
@@ -26,14 +26,14 @@ export default function Login() {
     try {
       setLoading(true);
       await signInWithGoogle();
-      navigate('/dashboard');
+      navigate('/dashboardEmployee');
     } catch (error) {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen bg-black pb-10">
       <Navbar />
       <div className="pt-24 flex items-center justify-center px-4">
         <div className="max-w-md w-full space-y-8 bg-zinc-900/50 p-8 rounded-xl border border-zinc-800">

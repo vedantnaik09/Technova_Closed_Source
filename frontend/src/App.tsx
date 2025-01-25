@@ -1,18 +1,20 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './contexts/AuthContext';
-import { useAuth } from './contexts/AuthContext';
+// import { useAuth } from './contexts/AuthContext';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import DashboardEmployee from './pages/DashboardEmployee';
+import Moderator from './pages/Moderator';
 
-function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { user, loading } = useAuth();
+// function PrivateRoute({ children }: { children: React.ReactNode }) {
+//   const { user, loading } = useAuth();
   
-  if (loading) return null;
+//   if (loading) return null;
   
-  return user ? <>{children}</> : <Navigate to="/login" />;
-}
+//   return user ? <>{children}</> : <Navigate to="/login" />;
+// }
 
 function App() {
   return (
@@ -22,6 +24,8 @@ function App() {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/dashboardEmployee" element={<DashboardEmployee />} />
+          <Route path="/moderator" element={<Moderator/>} />
         </Routes>
       </Router>
       <Toaster position="top-right" />
