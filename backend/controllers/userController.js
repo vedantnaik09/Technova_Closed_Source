@@ -31,6 +31,8 @@ exports.registerUser = async (req, res) => {
         id: newUser._id,
         email: newUser.email,
         role: newUser.role,
+        firstName: newUser.profile.firstName,
+        lastName: newUser.profile.lastName
       },
     });
   } catch (error) {
@@ -65,6 +67,8 @@ exports.loginUser = async (req, res) => {
         email: user.email,
         role: user.role,
         companyId: user.companyId,
+        firstName: user.profile.firstName,
+        lastName: user.profile.lastName,
       },
     });
   } catch (error) {
@@ -92,6 +96,20 @@ exports.createCompany = async (req, res) => {
     await user.save();
 
     res.status(201).json({ company, user });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getAllEmployees = async (req, res) => {
+  try {
+    // Find all users in the same company, excluding sensitive information
+    const employees = await User.find({ 
+      companyId: req.user.companyId,
+      role: { $ne: 'COMPANY_ADMIN' } // Exclude company admins if needed
+    }).select('_id profile email');
+
+    res.json({ employees });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

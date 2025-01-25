@@ -89,3 +89,21 @@ exports.promoteToProjectManager = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getCompanyEmployees = async (req, res) => {
+  try {
+    const companyId = req.user.companyId; // Assuming `req.user` contains the authenticated user's details
+
+    // Fetch employees associated with the company
+    const employees = await User.find({ companyId }).select('profile email');
+
+    if (!employees) {
+      return res.status(404).json({ error: 'No employees found for this company' });
+    }
+
+    res.json({ employees });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};

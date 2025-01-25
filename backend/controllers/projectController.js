@@ -1,5 +1,19 @@
 const Project = require('../models/Project');
 const User = require('../models/User');
+const mongoose = require('mongoose');
+
+exports.getProjects = async (req, res) => {
+  try {
+    // Fetch all projects for the company
+    const projects = await Project.find({ 
+      companyId: req.user.companyId 
+    }).select('_id name');
+
+    res.json({ projects });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 exports.createProject = async (req, res) => {
   try {
@@ -37,38 +51,38 @@ exports.createProject = async (req, res) => {
   }
 };
 
-exports.addProjectMember = async (req, res) => {
-  try {
-    const { projectId, userId } = req.body;
 
-    // Find project 
-    const project = await Project.findOne({
-      _id: projectId,
-      companyId: req.user.companyId,
-      projectManager: req.user.id
-    });
+
+exports.getProjectEmployees = async (req, res) => {
+  try {
+    const projectId = req.params.projectId;
+
+    if (!projectId) {
+      return res.status(400).json({ error: 'Project ID is required' });
+    }
+
+    const project = await Project.findById(projectId).populate('employees', 'profile email');
 
     if (!project) {
-      return res.status(404).json({ error: 'Project not found or unauthorized' });
+      return res.status(404).json({ error: 'Project not found' });
     }
 
-    // Find user
-    const user = await User.findOne({
-      _id: userId,
-      companyId: req.user.companyId
-    });
+    res.json({ employees: project.employees });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
-    if (!user) {
-      return res.status(404).json({ error: 'User not found in add project member' });
-    }
+exports.getProjectManagers = async (req, res) => {
+  try {
+    // Find all project managers in the same company
+    const projectManagers = await User.find({
+      companyId: req.user.companyId,
+      role: 'PROJECT_MANAGER'
+    }).select('profile email'); // Select only necessary fields
 
-    // Add user to project team if not already present
-    if (!project.team.includes(userId)) {
-      project.team.push(userId);
-      await project.save();
-    }
-
-    res.json(project);
+    res.json(projectManagers);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -98,3 +112,43 @@ exports.removeProjectMember = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.addProjectMember = async (req, res) => {
+  try {
+    const { projectId, userId } = req.body;
+
+    console.log(projectId, userId,req.user.companyId);
+    
+    // Verify the project exists and belongs to the user's company
+    const project = await Project.findOne({ 
+      _id: projectId, 
+      companyId: req.user.companyId.toString(),
+    });
+    console.log(project);
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found or access denied' });
+    }
+    
+    // Check if user is already a member
+    if (project.employees.includes(userId)) {
+      return res.status(400).json({ error: 'Employee is already a member of this project' });
+    }
+    
+    // Add user to project members
+    project.employees.push(userId);
+    await project.save();
+    
+    // Optionally, update user's managedProjects if applicable
+    await User.findByIdAndUpdate(userId, {
+      $addToSet: { managedProjects: projectId }
+    });
+    
+    res.status(200).json({ 
+      message: 'Employee added to project successfully',
+      project 
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+

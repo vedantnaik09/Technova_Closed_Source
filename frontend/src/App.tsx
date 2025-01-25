@@ -9,6 +9,11 @@ import DashboardEmployee from './pages/DashboardEmployee';
 import Moderator from './pages/Moderator';
 import Meet from './pages/Meet';
 import TalkingAvatar from './pages/TalkingAvatar';
+import CreateCompany from './pages/CreateCompany';
+import CreateProject from './pages/CreateProject';
+import AddCompanyEmployee from './pages/AddCompanyEmployee';
+import ProjectEmployees from './pages/ProjectEmployees';
+import AddProjectEmployee from './pages/AddProjectEmployee';
 
 // function PrivateRoute({ children }: { children: React.ReactNode }) {
 //   const { user, loading } = useAuth();
@@ -30,6 +35,11 @@ function App() {
           <Route path="/moderator" element={<Moderator/>} />
           <Route path="/employeeMeet" element={<Meet/>} />
           <Route path="/talkingAvatar" element={<TalkingAvatar/>} />
+          <Route path="/create-company" element={< CreateCompany/>} />
+          <Route path="/create-project" element={< CreateProject/>} />
+          <Route path="/add-company-employee" element={< AddCompanyEmployee/>} />
+          <Route path="/project-employees" element={< ProjectEmployees/>} />
+          <Route path="/add-project-employee" element={< AddProjectEmployee/>} />
         </Routes>
       </Router>
       <Toaster position="top-right" />
