@@ -8,17 +8,12 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [role, setRole] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { signUp } = useAuth();
-
-  interface SignInResult {
-    user: any; // Replace `any` with your user type if available
-    additionalUserInfo?: {
-      isNewUser: boolean;
-    };
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -35,7 +30,7 @@ export default function Register() {
 
     try {
       setLoading(true);
-      await signUp(email, password);
+      await signUp(email, password, firstName, lastName, role);
       navigate("/dashboardEmployee");
     } catch (error) {
       setLoading(false);
@@ -58,6 +53,40 @@ export default function Register() {
           </div>
           <form onSubmit={handleSubmit} className="mt-8 space-y-6">
             <div className="space-y-4">
+              <div>
+                <label
+                  htmlFor="firstName"
+                  className="block text-sm font-medium mb-2"
+                >
+                  First Name
+                </label>
+                <input
+                  id="firstName"
+                  type="text"
+                  required
+                  className="input-field"
+                  placeholder="John"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor="lastName"
+                  className="block text-sm font-medium mb-2"
+                >
+                  Last Name
+                </label>
+                <input
+                  id="lastName"
+                  type="text"
+                  required
+                  className="input-field"
+                  placeholder="Doe"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+              </div>
               <div>
                 <label
                   htmlFor="email"
