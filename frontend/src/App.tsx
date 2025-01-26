@@ -47,6 +47,8 @@ function App() {
           <Route path="/schedule-meeting" element={< ScheduleMeeting/>} />
           <Route path="/task-review" element={< TaskReview/>} />
 
+          <Route path="/task-view" element={< EmployeeTaskView/>} />
+
         </Routes>
       </Router>
       <Toaster position="top-right" />

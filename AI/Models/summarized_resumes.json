@@ -1,17 +1,12 @@
 [
     {
-        "resume_number": "6794ef7fe8c692c5bf483660",
-        "resume_name": "6794d66dc7bc62141a55c355.pdf",
-        "summary": "Vedant is a proficient full-stack developer with a strong focus on web development, utilizing technologies like React, Node.js, and Next.js."
-    },
-    {
-        "resume_number": "6794ef65e8c692c5bf48365d",
-        "resume_name": "6794ef65e8c692c5bf48365d.pdf",
-        "summary": "Taher is a strong full-stack developer with expertise in the MERN stack (MongoDB, Express.js, React.js, Node.js) and experience with cloud technologies like AWS."
-    },
-    {
-        "resume_number": "6794d66dc7bc62141a55c355",
+        "resume_number": "6795a09bdb1714baa5331db5",
         "resume_name": "6794ef7fe8c692c5bf483660.pdf",
-        "summary": "Prathmesh demonstrates strong expertise in **Machine Learning and Deep Learning**, with a focus on areas like computer vision, NLP, and generative models."
+        "summary": "Vedant is a skilled full-stack developer with expertise in React.js, Next.js, Node.js, and Express.js, along with proficiency in related web technologies."
+    },
+    {
+        "resume_number": "6794ef7fe8c692c5bf483660",
+        "resume_name": "6795a09bdb1714baa5331db5.pdf",
+        "summary": "Prathmesh is strong in **AI/ML,** with expertise in deep learning frameworks (TensorFlow, PyTorch), NLP, and computer vision. He has experience in developing AI applications and models."
     }
 ]

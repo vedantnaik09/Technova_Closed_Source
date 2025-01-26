@@ -5,7 +5,7 @@ const {
   createTask, 
   assignAITask, 
   updateTaskStatus,
-  getUserTasks
+  getUserTasks,
 } = require('../controllers/taskController');
 const authMiddleware = require('../config/authMiddleware');
 
@@ -14,5 +14,6 @@ router.post('/', authMiddleware, createTask);
 router.post('/ai-assign', authMiddleware, assignAITask);
 router.put('/:id/status', authMiddleware, updateTaskStatus);
 router.get('/my-tasks', authMiddleware, getUserTasks);
+router.get('/user/:userId/tasks', getUserTasks);
 
 module.exports = router;

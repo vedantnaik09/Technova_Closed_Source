@@ -7,7 +7,10 @@ interface Task {
   _id: string;
   title: string;
   description: string;
-  assignedTo: string;
+  assignedTo: {
+    _id: string;
+    email: string;
+  } | null; // Updated to allow null
   estimatedHours: number;
   status: string;
   priority: number;
@@ -23,13 +26,13 @@ const EmployeeTaskView = () => {
   const fetchTasks = async () => {
     try {
       const user = getUserFromLocalStorage();
-      if (!user) {
-        throw new Error('User not found in localStorage');
+      if (!user || !user.id) {
+        throw new Error('User or User ID not found in localStorage');
       }
 
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/tasks/my-tasks`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/tasks/user/${user.id}/tasks`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem('token')}`, // Assuming the user object has a token
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
 
@@ -40,7 +43,6 @@ const EmployeeTaskView = () => {
       const data: Task[] = await response.json();
       setTasks(data);
     } catch (err) {
-      // Type narrowing to handle the 'unknown' type
       if (err instanceof Error) {
         setError(err.message);
       } else {
@@ -73,7 +75,7 @@ const EmployeeTaskView = () => {
 
   return (
     <div className="min-h-screen bg-black text-white p-8">
-    <Navbar/>
+      <Navbar />
       <h1 className="mt-14 text-2xl font-bold mb-8 flex items-center">
         <FaTasks className="mr-2" /> My Tasks
       </h1>
@@ -82,7 +84,7 @@ const EmployeeTaskView = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {tasks.map((task) => (
             <div
-              key={task._id}
+              key={task._id} // Ensure task._id is unique
               className="p-6 bg-zinc-900 rounded-xl border border-zinc-800 hover:border-indigo-600/50 transition-all duration-300"
             >
               <h2 className="text-xl font-semibold mb-4 flex items-center">
@@ -92,7 +94,7 @@ const EmployeeTaskView = () => {
 
               <div className="space-y-3">
                 <div className="flex items-center text-gray-400">
-                  <FaUser className="mr-2" /> Assigned To: {task.assignedTo}
+                  <FaUser className="mr-2" /> Assigned To: {task.assignedTo ? task.assignedTo.email : "Unassigned"} {/* Handle null assignedTo */}
                 </div>
                 <div className="flex items-center text-gray-400">
                   <FaClock className="mr-2" /> Estimated Hours: {task.estimatedHours}
@@ -102,9 +104,6 @@ const EmployeeTaskView = () => {
                 </div>
                 <div className="flex items-center text-gray-400">
                   <FaCogs className="mr-2" /> Priority: {task.priority}
-                </div>
-                <div className="flex items-center text-gray-400">
-                  <FaProjectDiagram className="mr-2" /> Project ID: {task.project_id}
                 </div>
               </div>
             </div>
