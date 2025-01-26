@@ -108,7 +108,7 @@ const DashboardEmployee: React.FC = () => {
 
       {/* Dynamic Grid Layout */}
       {chartData && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-8">
           {/* Large Cards */}
           {renderChart('total_changes_image', 'Total Changes Over Time', <FaChartLine className="w-8 h-8" />, 2)}
           {renderChart('hourly_activity_image', 'Hourly File Activity', <FaClock className="w-8 h-8" />, 2)}
