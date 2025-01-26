@@ -44,10 +44,12 @@ export default function Navbar() {
     'PROJECT_MANAGER': [
       { to: '/project-employees', label: 'Project Team' },
       { to: '/add-project-employee', label: 'Manage Team' },
+      { to: '/schedule-meeting', label: 'Create Meet' },
     ],
     'EMPLOYEE': [
       { to: '/dashboardEmployee', label: 'Dashboard' },
       { to: '/employeeMeet', label: 'Meetings' },
+      { to: '/upload-resume', label: 'Upload Resume' },
     ],
   };
 
