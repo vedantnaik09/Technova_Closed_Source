@@ -31,4 +31,4 @@ const MeetingSchema = new mongoose.Schema(
   }
 );
 
-module.exports = mongoose.model('Meeting', MeetingSchema);
+module.exports = mongoose.model('Meetings', MeetingSchema);
