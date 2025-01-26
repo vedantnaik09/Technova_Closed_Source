@@ -60,55 +60,72 @@ def merge_audio_files(audio_urls):
     """
     Merge audio files from URLs into a single audio file using ffmpeg.
     """
+    print(f"[DEBUG] Starting merge_audio_files with {len(audio_urls)} audio URLs")
     temp_files = []
     input_files = []
 
     try:
         # Download all files first
-        for audio_url in audio_urls:
+        for i, audio_url in enumerate(audio_urls):
+            print(f"[DEBUG] Downloading audio file {i+1}: {audio_url}")
             response = requests.get(audio_url)
+            
             if response.status_code != 200:
+                print(f"[ERROR] Failed to download audio from {audio_url}. Status code: {response.status_code}")
                 raise HTTPException(status_code=response.status_code,
                                   detail=f"Failed to download audio from {audio_url}")
 
             # Save to temporary file
             temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.webm')
             temp_files.append(temp_file.name)
+            print(f"[DEBUG] Created temporary file: {temp_file.name}")
 
             with open(temp_file.name, 'wb') as f:
                 f.write(response.content)
+            print(f"[DEBUG] Wrote {len(response.content)} bytes to {temp_file.name}")
 
             input_files.append(temp_file.name)
 
         # Create output directory if it doesn't exist
         os.makedirs(r"AI/Models/audios", exist_ok=True)
         output_file = r"AI/Models/audios/merged_audio.mp3"
+        print(f"[DEBUG] Output directory created. Output file will be: {output_file}")
 
         # Prepare filter complex for concatenation
         filter_complex = '[0]'
         for i in range(1, len(input_files)):
             filter_complex += f'[{i}]'
         filter_complex += f'concat=n={len(input_files)}:v=0:a=1[outa]'
+        print(f"[DEBUG] FFmpeg filter complex: {filter_complex}")
 
         # Merge audio files
+        print("[DEBUG] Preparing to merge audio files")
         stream = ffmpeg.input(input_files[0])
         for input_file in input_files[1:]:
             stream = ffmpeg.input(input_file)
+            print(f"[DEBUG] Added input file: {input_file}")
 
         stream = ffmpeg.output(stream, output_file, acodec='libmp3lame')
+        print("[DEBUG] FFmpeg stream prepared. Running merge...")
         ffmpeg.run(stream, overwrite_output=True)
+        print("[DEBUG] Audio merge completed successfully")
+
+        # Clean up temporary files
+        for temp_file in temp_files:
+            try:
+                os.unlink(temp_file)
+                print(f"[DEBUG] Deleted temporary file: {temp_file}")
+            except Exception as cleanup_error:
+                print(f"[ERROR] Failed to delete temporary file {temp_file}: {cleanup_error}")
 
         return output_file
 
     except Exception as e:
+        print(f"[CRITICAL ERROR] An exception occurred: {e}")
+        print(f"[DEBUG] Exception type: {type(e).__name__}")
+        print(f"[DEBUG] Temporary files: {temp_files}")
+        print(f"[DEBUG] Input files: {input_files}")
         raise HTTPException(status_code=500, detail=str(e))
-
-    finally:
-        # Clean up temporary files
-        for temp_file in temp_files:
-            if os.path.exists(temp_file):
-                os.remove(temp_file)
-                
 db_url = os.getenv("MONGODB_URI")
 print("The database URL is:", db_url)
 client = MongoClient(db_url)  # Update with your MongoDB connection string
@@ -270,12 +287,12 @@ async def merge_audio(request: dict):
         tts_output_file = r"AI\Models\audios\tts_output.mp3"
         tts.save(tts_output_file)
         os.remove(output_file)
-
+        print("bad")
         # Process resumes and generate tasks
         resume_folder = r'AI\Models\resume'
         output_file = r'AI\Models\summarized_resumes.json'
         summarize_resumes(users_id, resume_folder, output_file)
-        
+        print("gud")
         # Generate tasks JSON
         json_data = Tasks(tts_output_file)
         collection_task = db["tasks"]

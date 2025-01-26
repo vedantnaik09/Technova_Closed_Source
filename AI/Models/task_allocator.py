@@ -41,6 +41,7 @@ def get_resume(user_ids):
             print(f"Failed to download PDF for user {user_id}. Status code: {response.status_code}")
 
 def summarize_resumes(users_id,resume_folder, output_file):
+    print("bad", users_id,resume_folder,output_file)
     """
     Summarizes all PDF resumes in the specified folder and saves the results to a JSON file.
 
