@@ -50,7 +50,7 @@ const benefits = [
 
 const testimonials = [
   {
-    quote: "TeamAI transformed how our remote team works. The AI insights are game-changing.",
+    quote: "CloSo transformed how our remote team works. The AI insights are game-changing.",
     author: "Sarah Chen",
     role: "CTO at TechFlow",
     image: "https://randomuser.me/api/portraits/women/1.jpg"
@@ -142,7 +142,7 @@ export default function Landing() {
         <div className="absolute inset-0 bg-gradient-to-b from-indigo-600/5 to-transparent" />
         <div className="max-w-7xl mx-auto px-4 relative">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold mb-4">Why Teams Choose TeamAI</h2>
+            <h2 className="text-4xl font-bold mb-4">Why Teams Choose CloSo</h2>
             <p className="text-gray-400 max-w-2xl mx-auto">
               Join hundreds of teams already benefiting from our AI-powered productivity platform
             </p>
@@ -165,7 +165,7 @@ export default function Landing() {
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold mb-4">Loved by Teams Worldwide</h2>
             <p className="text-gray-400 max-w-2xl mx-auto">
-              See what our customers have to say about their experience with TeamAI
+              See what our customers have to say about their experience with CloSo
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -197,7 +197,7 @@ export default function Landing() {
             Ready to Transform Your Team's Productivity?
           </h2>
           <p className="text-xl text-gray-400 mb-8">
-            Join hundreds of teams already using TeamAI to work smarter, not harder.
+            Join hundreds of teams already using CloSo to work smarter, not harder.
           </p>
           <div className="flex justify-center gap-4">
             <Link to="/register" className="btn-primary">
@@ -215,7 +215,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4">
           <div className="grid md:grid-cols-4 gap-8">
             <div>
-              <span className="text-xl font-bold gradient-text">TeamAI</span>
+              <span className="text-xl font-bold gradient-text">CloSo</span>
               <p className="mt-4 text-gray-400">
                 AI-powered productivity tools for modern teams.
               </p>
@@ -249,7 +249,7 @@ export default function Landing() {
             </div>
           </div>
           <div className="mt-12 pt-8 border-t border-zinc-800 text-center text-gray-400">
-            <p>© 2024 TeamAI. All rights reserved.</p>
+            <p>© 2024 CloSo. All rights reserved.</p>
           </div>
         </div>
       </footer>
