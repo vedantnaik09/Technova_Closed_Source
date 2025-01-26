@@ -50,33 +50,64 @@ def send_email(recipient_email: str, subject: str, body: str):
     except Exception as e:
         print(f"Failed to send email to {recipient_email}: {e}")
         
-def merge_audio_files(audio_files):
+import ffmpeg
+import requests
+import tempfile
+import os
+from fastapi import HTTPException
+
+def merge_audio_files(audio_urls):
     """
-    Merge audio files into a single audio file and delete individual files after merging.
+    Merge audio files from URLs into a single audio file using ffmpeg.
     """
-    merged_audio = AudioSegment.empty()
+    temp_files = []
+    input_files = []
 
-    for audio_url in audio_files:
-        try:
-            # Load the audio file
-            audio = AudioSegment.from_file(audio_url)
-            # Append the audio to the merged_audio
-            merged_audio += audio
-            # Delete the individual audio file after merging
-            #os.remove(audio_url)
-            #print(f"Deleted: {audio_url}")
-        except CouldntDecodeError:
-            raise HTTPException(status_code=400, detail=f"Could not decode audio file: {audio_url}")
-        except FileNotFoundError:
-            raise HTTPException(status_code=404, detail=f"Audio file not found: {audio_url}")
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error processing audio file {audio_url}: {str(e)}")
+    try:
+        # Download all files first
+        for audio_url in audio_urls:
+            response = requests.get(audio_url)
+            if response.status_code != 200:
+                raise HTTPException(status_code=response.status_code,
+                                  detail=f"Failed to download audio from {audio_url}")
 
-    # Save the merged audio to a temporary file
-    output_file = r"AI\Models\audios\merged_audio.mp3"
-    merged_audio.export(output_file, format="mp3")
-    return output_file
+            # Save to temporary file
+            temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.webm')
+            temp_files.append(temp_file.name)
 
+            with open(temp_file.name, 'wb') as f:
+                f.write(response.content)
+
+            input_files.append(temp_file.name)
+
+        # Create output directory if it doesn't exist
+        os.makedirs(r"AI/Models/audios", exist_ok=True)
+        output_file = r"AI/Models/audios/merged_audio.mp3"
+
+        # Prepare filter complex for concatenation
+        filter_complex = '[0]'
+        for i in range(1, len(input_files)):
+            filter_complex += f'[{i}]'
+        filter_complex += f'concat=n={len(input_files)}:v=0:a=1[outa]'
+
+        # Merge audio files
+        stream = ffmpeg.input(input_files[0])
+        for input_file in input_files[1:]:
+            stream = ffmpeg.input(input_file)
+
+        stream = ffmpeg.output(stream, output_file, acodec='libmp3lame')
+        ffmpeg.run(stream, overwrite_output=True)
+
+        return output_file
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+    finally:
+        # Clean up temporary files
+        for temp_file in temp_files:
+            if os.path.exists(temp_file):
+                os.remove(temp_file)
 db_url = os.getenv("MONGODB_URI")
 print("The database URL is:", db_url)
 client = MongoClient(db_url)  # Update with your MongoDB connection string
