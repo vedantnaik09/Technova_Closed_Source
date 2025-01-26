@@ -48,6 +48,7 @@ export default function Navbar() {
     ],
     'EMPLOYEE': [
       { to: '/dashboardEmployee', label: 'Dashboard' },
+      { to: '/task-view', label: 'View Tasks' },
       { to: '/employeeMeet', label: 'Meetings' },
       { to: '/upload-resume', label: 'Upload Resume' },
     ],
