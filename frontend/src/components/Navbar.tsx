@@ -1,9 +1,10 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useEffect, useState } from 'react';
 
 export default function Navbar() {
   const location = useLocation();
+  const navigate = useNavigate();
   const isLandingPage = location.pathname === '/';
   const { logout } = useAuth();
   const [user, setUser] = useState<any>(null);
@@ -13,7 +14,6 @@ export default function Navbar() {
       try {
         const userString = localStorage.getItem('user');
         const parsedUser = userString ? JSON.parse(userString) : null;
-        console.log('User from localStorage:', parsedUser); // Debugging
         return parsedUser;
       } catch (error) {
         console.error('Error retrieving user from localStorage:', error);
@@ -21,7 +21,6 @@ export default function Navbar() {
       }
     };
 
-    // Fetch and set user on component mount
     setUser(getUserFromLocalStorage());
   }, []);
 
@@ -30,6 +29,7 @@ export default function Navbar() {
       await logout();
       localStorage.removeItem('user');
       setUser(null);
+      navigate('/login'); // Redirect to login page after logout
     } catch (error) {
       console.error('Failed to log out:', error);
     }
@@ -44,10 +44,12 @@ export default function Navbar() {
     'PROJECT_MANAGER': [
       { to: '/project-employees', label: 'Project Team' },
       { to: '/add-project-employee', label: 'Manage Team' },
+      { to: '/schedule-meeting', label: 'Create Meet' },
     ],
     'EMPLOYEE': [
       { to: '/dashboardEmployee', label: 'Dashboard' },
       { to: '/employeeMeet', label: 'Meetings' },
+      { to: '/upload-resume', label: 'Upload Resume' },
     ],
   };
 

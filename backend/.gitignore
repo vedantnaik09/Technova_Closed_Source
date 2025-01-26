@@ -34,3 +34,6 @@ jspm_packages/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+uploads/resume/*
+uploads/audios/*
