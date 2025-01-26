@@ -518,6 +518,7 @@ async def answer_question(request: Request):
             raise HTTPException(status_code=400, detail="No question provided")
 
         # Get response from Google Generative AI
+        user_input=user_input+"answer in 10-20 words."
         response = llms.invoke(user_input)
         
         return {"response": response.content}

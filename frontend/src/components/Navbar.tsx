@@ -48,6 +48,7 @@ export default function Navbar() {
     ],
     'EMPLOYEE': [
       { to: '/dashboardEmployee', label: 'Dashboard' },
+      { to: '/task-view', label: 'View Tasks' },
       { to: '/employeeMeet', label: 'Meetings' },
       { to: '/upload-resume', label: 'Upload Resume' },
     ],
@@ -80,7 +81,7 @@ export default function Navbar() {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Link to="/" className="text-xl font-bold gradient-text">
-              TeamAI
+              CloSo
             </Link>
             {user && renderNavLinks()}
           </div>

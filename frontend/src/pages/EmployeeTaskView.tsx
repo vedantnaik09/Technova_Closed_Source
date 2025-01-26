@@ -88,9 +88,8 @@ const EmployeeTaskView = () => {
               className="p-6 bg-zinc-900 rounded-xl border border-zinc-800 hover:border-indigo-600/50 transition-all duration-300"
             >
               <h2 className="text-xl font-semibold mb-4 flex items-center">
-                <FaProjectDiagram className="mr-2 text-indigo-400" /> {task.title}
+                <FaProjectDiagram className="mr-2 text-indigo-400" />{task.description}
               </h2>
-              <p className="text-gray-400 mb-4">{task.description}</p>
 
               <div className="space-y-3">
                 <div className="flex items-center text-gray-400">
