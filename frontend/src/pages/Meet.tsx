@@ -34,9 +34,9 @@ type OfferAnswerPair = {
   } | null;
 };
 const Meet = () => {
+  console.log(localStorage.getItem('user'))
   const user = JSON.parse(localStorage.getItem('user') || '{}');
-  const myId = user && user.profile && user.profile.firstName ? user.profile.firstName : null;
-
+  const myId = user.firstName
   return (
     <Suspense fallback={<div>Loading...</div>}>
       {myId ? (
@@ -134,22 +134,24 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
       setCallId(callInputRef.current.value);
       navigate(`${location.pathname}?id=${callInputRef.current.value}`);
     }
+    // alert(callId)
     const callDocHost = firestore.collection("calls").doc(callId);
     const lengthUsers = (await callDocHost.get()).data()?.connectedUsers;
     let indexOfOtherConnectedCandidates = callDocHost
-      .collection("otherCandidates")
-      .doc(`indexOfConnectedCandidates`);
-
+    .collection("otherCandidates")
+    .doc(`indexOfConnectedCandidates`);
+    
     const myIndex = lengthUsers + 1;
     setMyIndex(lengthUsers);
     await callDocHost.update({ connectedUsers: myIndex });
-
+    
     indexOfOtherConnectedCandidates.update({
       indexOfCurrentUsers: firebase.firestore.FieldValue.arrayUnion(myIndex),
     });
-
+    
+    console.log("dwdwq",callId)
     let pc: RTCPeerConnection;
-
+    
     indexOfOtherConnectedCandidates.onSnapshot(async (doc) => {
       if (doc.exists) {
         //Check for any newly addded users

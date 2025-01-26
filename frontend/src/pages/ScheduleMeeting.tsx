@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import Moderator from '../pages/Moderator';
 
 interface User {
   _id: string;
@@ -103,7 +104,7 @@ const ScheduleMeeting: React.FC = () => {
       const token = localStorage.getItem('token');
       const user = localStorage.getItem('user');
       const userId = user ? JSON.parse(user).id : '';
-      
+      const roomId = meetingShortId;
       const response = await fetch('http://172.31.0.36:5000/api/meetings/schedule', {
         method: 'POST',
         headers: {
@@ -112,7 +113,7 @@ const ScheduleMeeting: React.FC = () => {
         },
         body: JSON.stringify({
           userId:userId,
-          roomId: meetingShortId,
+          roomId: roomId,
           projectId: selectedProject,
           participants: selectedEmployees,
           audioUrl: '', // You can modify this as needed
@@ -120,14 +121,14 @@ const ScheduleMeeting: React.FC = () => {
           isLast: false // You can modify this as needed
         })
       });
+    if (!response.ok) {
+      throw new Error('Failed to schedule meeting');
+    }
 
-      if (!response.ok) {
-        throw new Error('Failed to schedule meeting');
-      }
-
-      const data = await response.json();
+    // Call the Moderator component and pass roomId as a prop
+    navigate(`/moderator?id=${roomId}`, { state: { roomId, initiate: true } });
+    //   const data = await response.json();
       toast.success('Meeting scheduled successfully');
-      navigate('/meetings');
     } catch (error) {
       toast.error('Failed to schedule meeting');
     }

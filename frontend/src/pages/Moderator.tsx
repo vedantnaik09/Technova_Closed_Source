@@ -3,7 +3,6 @@ import { firestore, firebase } from "../lib/firebase";
 import toast from "react-hot-toast";
 import { FaMicrophoneAltSlash, FaVideoSlash, FaMicrophone, FaVideo, FaCamera, FaCopy, FaPhoneSlash } from "react-icons/fa";
 import { useLocation, useNavigate } from "react-router-dom";
-import NameDialog from "../components/meeting/NameDialog";
 import RealTimeTranscript from "../components/meeting/RealTimeTranscript";
 import TalkingAvatar from "../components/TalkingAvatar";
 
@@ -18,12 +17,23 @@ type OfferAnswerPair = {
   } | null;
 };
 const Moderator = () => {
-  const [myId, setMyID] = useState<string | null>(null);
-
-  return <Suspense fallback={<div>Loading...</div>}>{myId ? <PageContent myId={myId} /> : <NameDialog setMyId={setMyID} />}</Suspense>;
+  console.log(localStorage.getItem('user'))
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const myId = user.firstName   // Retrieve the state passed from navigate
+   const location = useLocation();
+   const { roomId, initiate } = location.state || {};
+return (
+    <Suspense fallback={<div>Loading...</div>}>
+      {myId ? (
+        <PageContent myId={myId} roomId={roomId} initiate={initiate}/>
+            ) : (
+        <div>Please set your name in the user profile.</div>
+      )}
+    </Suspense>
+  );
 };
 
-const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
+const PageContent: React.FC<{ myId: string; roomId?: string, initiate: boolean }> = ({ myId, roomId, initiate }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -69,7 +79,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
   const handleCallButtonClick = async () => {
     setInCall(true);
     if (hangupButtonRef.current) hangupButtonRef.current.disabled = false;
-    const shortId = generateShortId();
+    const shortId = roomId
     const callDoc = firestore.collection("calls").doc(shortId);
     let indexOfOtherConnectedCandidates = callDoc.collection("otherCandidates").doc(`indexOfConnectedCandidates`);
     const screenshotDoc = callDoc.collection("screenshotSignal").doc("screenshotSignalDocument");
@@ -640,17 +650,23 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
         hasEffectRun.current = true;
         startWebcam();
         const searchParams = new URLSearchParams(location.search);
-        const id = searchParams.get("id");
-        if (id) {
-          setCallId(id);
-          if (callInputRef.current) {
-            callInputRef.current.value = id;
-          }
-          handleAnswerButtonClick();
-        } else {
+        if(initiate){
           handleCallButtonClick();
+          console.log("initiator so initiating")
         }
-
+        else{
+          const id = searchParams.get("id");
+          if (id) {
+            setCallId(id);
+            if (callInputRef.current) {
+              callInputRef.current.value = id;
+            }
+            handleAnswerButtonClick();
+            console.log("Answering")
+          } else {
+            handleCallButtonClick();
+          }
+        }
         setIsClient(true); // Indicate that the client is set up
       }
     };
