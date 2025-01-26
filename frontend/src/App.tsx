@@ -16,6 +16,7 @@ import AddProjectEmployee from './pages/AddProjectEmployee';
 import EmployeeTaskView from './pages/EmployeeTaskView';
 import ResumeUpload from './pages/ResumeUpload';
 import ScheduleMeeting from './pages/ScheduleMeeting';
+import TaskReview from './pages/TaskReview';
 
 // function PrivateRoute({ children }: { children: React.ReactNode }) {
 //   const { user, loading } = useAuth();
@@ -44,6 +45,8 @@ function App() {
           <Route path="/employeeTaskView" element={< EmployeeTaskView/>} />
           <Route path="/upload-resume" element={< ResumeUpload/>} />
           <Route path="/schedule-meeting" element={< ScheduleMeeting/>} />
+          <Route path="/task-review" element={< TaskReview/>} />
+
         </Routes>
       </Router>
       <Toaster position="top-right" />

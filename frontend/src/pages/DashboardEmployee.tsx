@@ -1,6 +1,7 @@
 import React, { useState, useEffect, JSX } from 'react';
 import axios from 'axios';
 import { FaChartLine, FaUsers, FaFileAlt, FaCodeBranch, FaCircleNotch, FaClock, FaExclamationCircle, FaSpinner } from 'react-icons/fa';
+import Navbar from '../components/Navbar';
 
 interface ChartData {
   total_changes_image: string;
@@ -78,8 +79,10 @@ const DashboardEmployee: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-black text-white p-8">
+      <Navbar/>
+
       {/* Header */}
-      <div className="mb-12">
+      <div className="mb-12 mt-16">
         <h1 className="text-5xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
           Employee Analytics Dashboard
         </h1>
