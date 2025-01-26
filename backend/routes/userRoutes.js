@@ -5,6 +5,7 @@ const {
   registerUser,
   loginUser,
   createCompany,
+  getAllEmployees
 } = require('../controllers/userController');
 const User = require('../models/User');
 const multer = require('multer');
@@ -54,6 +55,7 @@ router.post('/upload-resume', authMiddleware, upload.single('resume'), async (re
 // Public Routes
 router.post('/register', registerUser);
 router.post('/login', loginUser);
+router.get('/employee', authMiddleware, getAllEmployees);
 
 // Protected Routes
 router.post('/create-company', authMiddleware, createCompany);

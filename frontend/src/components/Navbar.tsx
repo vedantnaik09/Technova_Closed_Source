@@ -1,17 +1,75 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import { useEffect, useState } from 'react';
 
 export default function Navbar() {
   const location = useLocation();
   const isLandingPage = location.pathname === '/';
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const getUserFromLocalStorage = () => {
+      try {
+        const userString = localStorage.getItem('user');
+        const parsedUser = userString ? JSON.parse(userString) : null;
+        console.log('User from localStorage:', parsedUser); // Debugging
+        return parsedUser;
+      } catch (error) {
+        console.error('Error retrieving user from localStorage:', error);
+        return null;
+      }
+    };
+
+    // Fetch and set user on component mount
+    setUser(getUserFromLocalStorage());
+  }, []);
 
   const handleLogout = async () => {
     try {
       await logout();
+      localStorage.removeItem('user');
+      setUser(null);
     } catch (error) {
       console.error('Failed to log out:', error);
     }
+  };
+
+  const navLinks = {
+    'COMPANY_OWNER': [
+      { to: '/create-company', label: 'Company' },
+      { to: '/create-project', label: 'Projects' },
+      { to: '/add-company-employee', label: 'Employees' },
+    ],
+    'PROJECT_MANAGER': [
+      { to: '/project-employees', label: 'Project Team' },
+      { to: '/add-project-employee', label: 'Manage Team' },
+    ],
+    'EMPLOYEE': [
+      { to: '/dashboardEmployee', label: 'Dashboard' },
+      { to: '/employeeMeet', label: 'Meetings' },
+    ],
+  };
+
+  const renderNavLinks = () => {
+    if (!user) return null;
+
+    const links = navLinks[user.role];
+    if (!links) return null;
+
+    return (
+      <div className="hidden md:flex ml-10 space-x-8">
+        {links.map((link) => (
+          <Link
+            key={link.to}
+            to={link.to}
+            className="text-gray-300 hover:text-white transition-colors"
+          >
+            {link.label}
+          </Link>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -19,30 +77,21 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            <Link to="/" className="text-xl font-bold gradient-text">TeamAI</Link>
-            {user && !isLandingPage && (
-              <div className="hidden md:flex ml-10 space-x-8">
-                <Link to="/dashboard" className="text-gray-300 hover:text-white transition-colors">
-                  Dashboard
-                </Link>
-                <Link to="/analytics" className="text-gray-300 hover:text-white transition-colors">
-                  Analytics
-                </Link>
-                <Link to="/team" className="text-gray-300 hover:text-white transition-colors">
-                  Team
-                </Link>
-                <Link to="/settings" className="text-gray-300 hover:text-white transition-colors">
-                  Settings
-                </Link>
-              </div>
-            )}
+            <Link to="/" className="text-xl font-bold gradient-text">
+              TeamAI
+            </Link>
+            {user && renderNavLinks()}
           </div>
           <div className="flex items-center space-x-4">
             {!user ? (
               isLandingPage ? (
                 <>
-                  <Link to="/login" className="btn-secondary">Login</Link>
-                  <Link to="/register" className="btn-primary">Get Started</Link>
+                  <Link to="/login" className="btn-secondary">
+                    Login
+                  </Link>
+                  <Link to="/register" className="btn-primary">
+                    Get Started
+                  </Link>
                 </>
               ) : null
             ) : (

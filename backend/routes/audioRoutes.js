@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const { uploadAudio } = require('../controllers/audioController');
+const { uploadAudio, processAudio } = require('../controllers/audioController');
 
 const router = express.Router();
 
@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
       const userId = req.params.userId.replace(':', ''); // Remove colon if present
-      cb(null, `${userId}.mp3`);
+      cb(null, `${userId}.webm`);
     },
   });
   
@@ -32,5 +32,6 @@ const upload = multer({
 
 // POST route for audio upload
 router.post('/upload/:userId', upload.single('audio'), uploadAudio);
+router.post('/process/:roomId',  processAudio);
 
 module.exports = router;

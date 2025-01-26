@@ -1042,12 +1042,12 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
             )}
           </div>
         ))}
-        <div
-        className={`pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] border-gray-800 border text-blue-400 mx-auto`}
+      </div>
+      <div
+        className={`pt-2 mt-4 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] border-gray-800 border text-blue-400 mx-auto`}
       >
         <h3 className="text-xl font-medium mb-2 mx-auto w-full text-center">Your AI Assistant</h3>
         <TalkingAvatar toggleMicFromComponent = {toggleMicFromComponent}/>
-      </div>
       </div>
     </div>
   );
