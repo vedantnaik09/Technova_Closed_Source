@@ -145,8 +145,12 @@ const RealTimeTranscript: React.FC<{
 
   const sendFormDataToAPI = async (formData: FormData) => {
     try {
+      const userString = localStorage.getItem('user');
+      const parsedUser = userString ? JSON.parse(userString) : null;
+      const userId = await parsedUser?.id
+      console.log(userId)
       const response = await fetch(
-        `${import.meta.env.VITE_BASE_URL}/api/audios/upload/:6794d66dc7bc62141a55c355`,
+        `${import.meta.env.VITE_BASE_URL}/api/audios/upload/${userId}`,
         {
           method: "POST",
           headers: {

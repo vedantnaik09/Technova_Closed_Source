@@ -660,6 +660,29 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
 
   // Additional useEffect to ensure the webcam stream is correctly assigned
 
+  const startProcess = async () =>{
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_BASE_URL}/api/audios/process/:${callId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to send signal");
+      }
+
+      const data = await response.json();
+      console.log("Form data send signal:", data);
+    } catch (error) {
+      console.error("Error sending signal:", error);
+    }
+  }
+
   const copyLink = () => {
     const currentUrl = new URL(window.location.href);
     if (currentUrl.pathname === "/transcript") {
@@ -694,9 +717,9 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
     }
   };
 
-  const toggleMicFromComponent = (active: boolean) =>{
-    if(micEnabled && !active)
-    {
+
+  const toggleMicFromComponent = (active: boolean) => {
+    if (micEnabled && !active) {
       setMicEnabled(!micEnabled);
       console.log(stream);
       if (stream) {
@@ -713,9 +736,8 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
         }
       }
     }
-    if(!micEnabled && active)
-    {
-      console.log("Mic setting to active")
+    if (!micEnabled && active) {
+      console.log("Mic setting to active");
       setMicEnabled(!micEnabled);
       console.log(stream);
       if (stream) {
@@ -732,7 +754,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
         }
       }
     }
-  }
+  };
 
   const handleVideoToggle = async () => {
     setVideoEnabled(!videoEnabled);
@@ -838,6 +860,9 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
           </button>
         </div>
         <RealTimeTranscript roomId={callId!} userId={myId} manager={true} />
+        <button onClick={startProcess} className="rounded-xl bg-blue-600 p-2">
+          Start Processing Audio 
+        </button>
       </div>
 
       <div className={`flex mx-auto my-5 justify-center w-full gap-2 flex-wrap`}>
@@ -879,7 +904,7 @@ const PageContent: React.FC<{ myId: string }> = ({ myId }) => {
         className={`pt-2 rounded-lg shadow-md max-w-[33%] min-w-[500px] max-sm:w-full max-sm:min-w-[300px] max-md:min-w-[450px] border-gray-800 border text-blue-400 mx-auto`}
       >
         <h3 className="text-xl font-medium mb-2 mx-auto w-full text-center">Your AI Assistant</h3>
-        <TalkingAvatar toggleMicFromComponent = {toggleMicFromComponent}/>
+        <TalkingAvatar toggleMicFromComponent={toggleMicFromComponent} />
       </div>
     </div>
   );
