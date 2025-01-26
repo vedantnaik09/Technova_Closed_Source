@@ -108,6 +108,7 @@ def merge_audio_files(audio_urls):
         for temp_file in temp_files:
             if os.path.exists(temp_file):
                 os.remove(temp_file)
+                
 db_url = os.getenv("MONGODB_URI")
 print("The database URL is:", db_url)
 client = MongoClient(db_url)  # Update with your MongoDB connection string
