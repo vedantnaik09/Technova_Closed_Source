@@ -629,7 +629,64 @@ async def get_changed_files(employee_id: str):
     except HTTPException as e:
         raise e
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))    
+        raise HTTPException(status_code=500, detail=str(e))
+
+def generate_meeting_minutes(audio_file_path: str) -> str:
+    # Load environment variables from .env file
+    load_dotenv()
+    import google.generativeai as GenAI
+    import pathlib
+    
+    # Set the Google API key from the environment variable
+    os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
+    GenAI.configure(api_key=os.getenv("GOOGLE_API_KEY"))
+    
+    # Read the audio file as bytes
+    audio_bytes = pathlib.Path(audio_file_path).read_bytes()
+    
+    # Initialize the GenerativeModel with the specified model
+    model = GenAI.GenerativeModel('models/gemini-2.0-flash-exp')
+    
+    # Define the prompt for generating meeting minutes
+    prompt = """
+    Your task is to create the minutes of the meeting and important points discussed in the meet. 
+    Don't create the transcription; I just need sentiment analysis in 100-200 words.
+    """
+    
+    # Generate the meeting minutes using the model
+    response = model.generate_content(
+        [
+            prompt,
+            {
+                "mime_type": "audio/mp3",
+                "data": audio_bytes
+            }
+        ]
+    )
+    
+    # Return the generated meeting minutes
+    return response.text
+from fastapi import FastAPI, File, UploadFile
+@app.post("/generate-minutes/")
+async def create_upload_file(file: UploadFile = File(...)):
+    if not file.filename.endswith(".mp3"):
+        raise HTTPException(status_code=400, detail="File must be an MP3")
+    
+    # Save the uploaded file temporarily
+    file_location = f"temp_{file.filename}"
+    with open(file_location, "wb+") as file_object:
+        file_object.write(file.file.read())
+    
+    try:
+        # Generate meeting minutes
+        minutes = generate_meeting_minutes(file_location)
+    finally:
+        send_email("taherafsar.work@gmail.com","Meeting Minutes",minutes)
+        # Clean up the temporary file
+        os.remove(file_location)
+    
+    return {"minutes": minutes}
+
 
 if __name__ == "__main__":
     import uvicorn
