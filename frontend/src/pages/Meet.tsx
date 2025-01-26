@@ -34,14 +34,15 @@ type OfferAnswerPair = {
   } | null;
 };
 const Meet = () => {
-  const [myId, setMyID] = useState<string | null>(null);
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const myId = user && user.profile && user.profile.firstName ? user.profile.firstName : null;
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
       {myId ? (
         <PageContent myId={myId} />
       ) : (
-        <NameDialog setMyId={setMyID} />
+        <div>Please set your name in the user profile.</div>
       )}
     </Suspense>
   );
