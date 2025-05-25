@@ -11,7 +11,6 @@ const RealTimeTranscript: React.FC<{
 }> = ({ roomId, userId, manager }) => {
   const [status, setStatus] = useState<"RECORDING" | "STOPPED">("STOPPED");
   const [recorder, setRecorder] = useState<RecordRTC | null>(null);
-  const [speechEvents, setSpeechEvents] = useState<{ start: number; stop: number }[]>([]);
   const mediaStreamRef = useRef<MediaStream | null>(null);
   const speechEventsRef = useRef<{ start: number; stop: number }[]>([]);
   const harkRef = useRef<any>(null);
@@ -135,7 +134,6 @@ const RealTimeTranscript: React.FC<{
       sendFormDataToAPI(formData);
 
       speechEventsRef.current = [];
-      setSpeechEvents([]);
       recordingStartTimeRef.current = null;
 
       toast.dismiss();

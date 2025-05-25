@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom';
 import { FaCheckCircle, FaRegLightbulb, FaDownload, FaClock, FaTasks } from 'react-icons/fa';
 import Navbar from '../components/Navbar';
 

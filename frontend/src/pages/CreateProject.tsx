@@ -15,8 +15,7 @@ const CreateProject: React.FC = () => {
   useEffect(() => {
     const fetchProjectManagers = async () => {
       const token = localStorage.getItem('token');
-      const user = JSON.parse(localStorage.getItem('user') || '{}');
-  
+ 
       try {
         const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/projects/project-managers`, {
           method: 'GET',
@@ -75,7 +74,6 @@ const CreateProject: React.FC = () => {
         throw new Error('Failed to create project');
       }
 
-      const data = await response.json();
       toast.success('Project created successfully!');
       navigate('/projects'); // Redirect to projects list
     } catch (error: any) {

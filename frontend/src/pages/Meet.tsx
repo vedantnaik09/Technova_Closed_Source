@@ -18,7 +18,6 @@ import {
   FaPhoneSlash,
 } from "react-icons/fa";
 import { MdOutlineStopScreenShare } from "react-icons/md";
-import NameDialog from "../components/meeting/NameDialog";
 import { useLocation, useNavigate } from "react-router-dom";
 import RealTimeTranscript from "../components/meeting/RealTimeTranscript";
 import TalkingAvatar from "../components/TalkingAvatar";

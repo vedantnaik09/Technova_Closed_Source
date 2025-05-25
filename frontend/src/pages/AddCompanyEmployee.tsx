@@ -13,7 +13,6 @@ const AddCompanyEmployee: React.FC = () => {
    e.preventDefault();
    
    const token = localStorage.getItem('token');
-   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
    if (!token) {
      toast.error('Please log in first');
@@ -38,8 +37,6 @@ const AddCompanyEmployee: React.FC = () => {
        const errorData = await response.json();
        throw new Error(errorData.error || 'Failed to add employee');
      }
-
-     const data = await response.json();
      toast.success('Employee added successfully!');
      navigate('/company/members'); // Redirect to company members list
    } catch (error: any) {

@@ -2,23 +2,62 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useEffect, useState } from 'react';
 
+type Role = 'COMPANY_OWNER' | 'PROJECT_MANAGER' | 'EMPLOYEE';
+
+interface User {
+  role: Role;
+  // add other fields as needed
+}
+
+interface NavLinkItem {
+  to: string;
+  label: string;
+}
+
+const navLinks: Record<Role, NavLinkItem[]> = {
+  COMPANY_OWNER: [
+    { to: '/create-company', label: 'Company' },
+    { to: '/create-project', label: 'Projects' },
+    { to: '/add-company-employee', label: 'Employees' },
+  ],
+  PROJECT_MANAGER: [
+    { to: '/project-employees', label: 'Project Team' },
+    { to: '/add-project-employee', label: 'Manage Team' },
+    { to: '/schedule-meeting', label: 'Create Meet' },
+  ],
+  EMPLOYEE: [
+    { to: '/dashboardEmployee', label: 'Dashboard' },
+    { to: '/task-view', label: 'View Tasks' },
+    { to: '/employeeMeet', label: 'Meetings' },
+    { to: '/upload-resume', label: 'Upload Resume' },
+  ],
+};
+
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
   const isLandingPage = location.pathname === '/';
   const { logout } = useAuth();
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-    const getUserFromLocalStorage = () => {
+    const getUserFromLocalStorage = (): User | null => {
       try {
         const userString = localStorage.getItem('user');
-        const parsedUser = userString ? JSON.parse(userString) : null;
-        return parsedUser;
+        if (!userString) return null;
+        const parsed = JSON.parse(userString);
+        // ensure parsed.role is one of our Role keys
+        if (
+          parsed &&
+          typeof parsed.role === 'string' &&
+          Object.keys(navLinks).includes(parsed.role)
+        ) {
+          return parsed as User;
+        }
       } catch (error) {
         console.error('Error retrieving user from localStorage:', error);
-        return null;
       }
+      return null;
     };
 
     setUser(getUserFromLocalStorage());
@@ -29,37 +68,16 @@ export default function Navbar() {
       await logout();
       localStorage.removeItem('user');
       setUser(null);
-      navigate('/login'); // Redirect to login page after logout
+      navigate('/login');
     } catch (error) {
       console.error('Failed to log out:', error);
     }
   };
 
-  const navLinks = {
-    'COMPANY_OWNER': [
-      { to: '/create-company', label: 'Company' },
-      { to: '/create-project', label: 'Projects' },
-      { to: '/add-company-employee', label: 'Employees' },
-    ],
-    'PROJECT_MANAGER': [
-      { to: '/project-employees', label: 'Project Team' },
-      { to: '/add-project-employee', label: 'Manage Team' },
-      { to: '/schedule-meeting', label: 'Create Meet' },
-    ],
-    'EMPLOYEE': [
-      { to: '/dashboardEmployee', label: 'Dashboard' },
-      { to: '/task-view', label: 'View Tasks' },
-      { to: '/employeeMeet', label: 'Meetings' },
-      { to: '/upload-resume', label: 'Upload Resume' },
-    ],
-  };
-
   const renderNavLinks = () => {
     if (!user) return null;
-
     const links = navLinks[user.role];
     if (!links) return null;
-
     return (
       <div className="hidden md:flex ml-10 space-x-8">
         {links.map((link) => (

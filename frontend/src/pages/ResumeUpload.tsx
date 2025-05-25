@@ -44,7 +44,7 @@ const ResumeUpload: React.FC = () => {
 
       const token = localStorage.getItem('token');
       
-      const response = await fetch('http://172.31.0.36:5000/api/users/upload-resume', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/users/upload-resume`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
@@ -56,7 +56,6 @@ const ResumeUpload: React.FC = () => {
         throw new Error('Resume upload failed');
       }
 
-      const data = await response.json();
       toast.success('Resume uploaded successfully');
       navigate('/dashboardEmployee');
     } catch (error) {

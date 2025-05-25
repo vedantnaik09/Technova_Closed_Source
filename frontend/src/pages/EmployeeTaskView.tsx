@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaTasks, FaUser, FaClock, FaFlag, FaCogs, FaProjectDiagram } from 'react-icons/fa';
 import Navbar from '../components/Navbar';
 

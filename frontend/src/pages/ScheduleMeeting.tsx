@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
-import Moderator from '../pages/Moderator';
 
 interface User {
   _id: string;
@@ -33,7 +32,7 @@ const ScheduleMeeting: React.FC = () => {
     const fetchProjects = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await fetch('http://172.31.0.36:5000/api/projects', {
+        const response = await fetch(`${import.meta.env.VITE_BASE_URL}/projects`, {
           method: 'GET',
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -63,7 +62,7 @@ const ScheduleMeeting: React.FC = () => {
   const fetchProjectEmployees = async (projectId: string) => {
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://172.31.0.36:5000/api/projects/employees/${projectId}`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/projects/employees/${projectId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -105,7 +104,7 @@ const ScheduleMeeting: React.FC = () => {
       const user = localStorage.getItem('user');
       const userId = user ? JSON.parse(user).id : '';
       const roomId = meetingShortId;
-      const response = await fetch('http://172.31.0.36:5000/api/meetings/schedule', {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/meetings/schedule`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

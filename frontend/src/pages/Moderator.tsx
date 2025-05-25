@@ -59,14 +59,7 @@ const PageContent: React.FC<{ myId: string; roomId?: string, initiate: boolean }
   const [afterCall, setAfterCall] = useState(0);
   const [callLeft, setCallLeft] = useState(0);
 
-  const generateShortId = () => {
-    const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    let result = "";
-    for (let i = 0; i < 5; i++) {
-      result += characters.charAt(Math.floor(Math.random() * characters.length));
-    }
-    return result;
-  };
+
   const servers = {
     iceServers: [
       {

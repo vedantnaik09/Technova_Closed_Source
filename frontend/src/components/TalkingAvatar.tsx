@@ -25,23 +25,14 @@ const TalkingAvatar: React.FC<{toggleMicFromComponent : (active: boolean) => voi
   const { applicationId } = useParams<{ applicationId: string }>();
   const [head, setHead] = useState<TalkingHead | null>(null);
   const [isTranscriptionActive, setIsTranscriptionActive] = useState<boolean>(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
   const [nextQuestion, setNextQuestion] = useState<string>("");
   const [isInterviewActive, setIsInterviewActive] = useState<boolean>(true);
   
   const { 
     transcript, 
-    listening, 
     browserSupportsSpeechRecognition, 
     resetTranscript 
   } = useSpeechRecognition();
-
-  // Initialize interview session
-  useEffect(() => {
-    if (applicationId) {
-      setSessionId(applicationId);
-    }
-  }, [applicationId]);
 
   // Start interview effect
   useEffect(() => {
@@ -181,12 +172,6 @@ const TalkingAvatar: React.FC<{toggleMicFromComponent : (active: boolean) => voi
     }
   };
 
-  // Time formatting utility
-  const formatTime = (seconds: number): string => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
 
   return (
     <div className="w-full max-w-4xl mx-auto bg-gray-900 text-white p-5 text-sm">
