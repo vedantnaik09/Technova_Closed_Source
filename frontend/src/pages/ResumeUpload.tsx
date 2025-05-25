@@ -44,7 +44,7 @@ const ResumeUpload: React.FC = () => {
 
       const token = localStorage.getItem('token');
       
-      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/users/upload-resume`, {
+      const response = await fetch(`${import.meta.env.VITE_BASE_URL}/api/users/upload-resume`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`
