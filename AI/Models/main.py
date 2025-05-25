@@ -57,6 +57,13 @@ import tempfile
 import os
 from fastapi import HTTPException
 
+app.get("/health")
+def health_check():
+    """
+    Health check endpoint to verify if the service is running.
+    """
+    return {"status": "ok", "message": "Model Service is running"}
+
 def merge_audio_files(audio_urls):
     """
     Merge audio files from URLs into a single audio file using ffmpeg.
@@ -691,4 +698,7 @@ async def create_upload_file(file: UploadFile = File(...)):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    import os
+    port = int(os.getenv("PORT", 8000))
+    print(f"[FASTAPI] Starting server on port {port}")
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")

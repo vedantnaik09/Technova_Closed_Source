@@ -69,7 +69,7 @@ exports.processAudio = async (req, res) => {
     console.log('Merge audio data:', mergeAudioData);
 
     // Send request to merge-audio endpoint
-    const mergeResponse = await axios.post('http://172.31.0.45:8000/merge-audio', mergeAudioData);
+    const mergeResponse = await axios.post(`${process.env.AI_SERVICE_URL || 'http://127.0.0.1:8000'}/merge-audio`, mergeAudioData);
 
     console.log('Merge audio response:', mergeResponse.data);
   } catch (mergeError) {

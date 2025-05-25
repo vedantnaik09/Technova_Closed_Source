@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: technova-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    buildCommand: chmod +x build.sh && ./build.sh
+    startCommand: npm start --prefix backend
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: AI_SERVICE_URL
+        value: http://127.0.0.1:8000
