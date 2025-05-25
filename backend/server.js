@@ -54,18 +54,33 @@ function startPythonServer() {
   
   // Check if we're in a Docker container (production) or local development
   const isProduction = process.env.NODE_ENV === 'production';
-  const pythonCommand = isProduction ? './venv/bin/python' : 'python3';
   
-  const pythonProcess = spawn(pythonCommand, ['main.py'], {
-    cwd: pythonPath,
-    stdio: ['pipe', 'pipe', 'pipe'],
-    env: { 
-      ...process.env, 
-      PORT: '8000',
-      PYTHONPATH: pythonPath,
-      PYTHONUNBUFFERED: '1'
-    }
-  });
+  let pythonProcess;
+  
+  if (isProduction) {
+    // In production (Docker), use the startup script
+    pythonProcess = spawn('./start.sh', [], {
+      cwd: pythonPath,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: { 
+        ...process.env, 
+        PORT: '8000',
+        PYTHONUNBUFFERED: '1'
+      }
+    });
+  } else {
+    // In development, use system Python
+    pythonProcess = spawn('python3', ['main.py'], {
+      cwd: pythonPath,
+      stdio: ['pipe', 'pipe', 'pipe'],
+      env: { 
+        ...process.env, 
+        PORT: '8000',
+        PYTHONPATH: pythonPath,
+        PYTHONUNBUFFERED: '1'
+      }
+    });
+  }
 
   pythonProcess.stdout.on('data', (data) => {
     console.log(`[PYTHON] ${data.toString().trim()}`);
@@ -77,11 +92,6 @@ function startPythonServer() {
 
   pythonProcess.on('error', (err) => {
     console.error('[PYTHON] Failed to start Python server:', err);
-    // Try fallback command if the first one fails
-    if (isProduction) {
-      console.log('[PYTHON] Trying fallback python3 command...');
-      setTimeout(() => startPythonServerFallback(), 2000);
-    }
   });
 
   pythonProcess.on('close', (code) => {
@@ -90,32 +100,6 @@ function startPythonServer() {
       console.error('[PYTHON] Server crashed, attempting restart in 5 seconds...');
       setTimeout(startPythonServer, 5000);
     }
-  });
-
-  return pythonProcess;
-}
-
-// Fallback function for production environments
-function startPythonServerFallback() {
-  const pythonPath = path.join(__dirname, '..', 'AI', 'Models');
-  
-  const pythonProcess = spawn('python3', ['main.py'], {
-    cwd: pythonPath,
-    stdio: ['pipe', 'pipe', 'pipe'],
-    env: { 
-      ...process.env, 
-      PORT: '8000',
-      PYTHONPATH: pythonPath,
-      PYTHONUNBUFFERED: '1'
-    }
-  });
-
-  pythonProcess.stdout.on('data', (data) => {
-    console.log(`[PYTHON FALLBACK] ${data.toString().trim()}`);
-  });
-
-  pythonProcess.stderr.on('data', (data) => {
-    console.error(`[PYTHON FALLBACK ERROR] ${data.toString().trim()}`);
   });
 
   return pythonProcess;

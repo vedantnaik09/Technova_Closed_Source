@@ -14,14 +14,18 @@ WORKDIR /app
 COPY backend/package*.json ./backend/
 RUN cd backend && npm install
 
-# Copy AI requirements
+# Copy AI requirements and startup script
 COPY AI/Models/requirements.txt ./AI/Models/
+COPY AI/Models/start.sh ./AI/Models/
 
 # Create Python virtual environment and install packages
 RUN cd AI/Models && python3 -m venv venv && \
     . venv/bin/activate && \
     pip install --upgrade pip && \
     pip install -r requirements.txt
+
+# Make startup script executable
+RUN chmod +x AI/Models/start.sh
 
 # Copy all application code
 COPY . .
