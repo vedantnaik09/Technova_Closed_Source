@@ -119,11 +119,15 @@ const PORT = process.env.PORT || 5000;
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`[NODE] Server running on port ${PORT}`);
   
-  // Start Python server after Node.js is ready
-  setTimeout(() => {
-    console.log('[STARTUP] Starting Python AI server...');
-    startPythonServer();
-  }, 3000);
+  // Only start Python server if AUTO_START_PYTHON is true (for Docker/Render)
+  if (process.env.NODE_ENV === 'production') {
+    setTimeout(() => {
+      console.log('[STARTUP] Starting Python AI server...');
+      startPythonServer();
+    }, 3000);
+  } else {
+    console.log('[INFO] Python server auto-start disabled. Start manually for local development.');
+  }
 });
 
 // Graceful shutdown
