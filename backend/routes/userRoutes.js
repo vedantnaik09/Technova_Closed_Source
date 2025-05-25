@@ -9,21 +9,11 @@ const {
 } = require('../controllers/userController');
 const User = require('../models/User');
 const multer = require('multer');
-const path = require('path');
+const { resumeStorage } = require('../config/cloudinary');
 
-// Multer configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, '../uploads/resume/'));
-  },
-  filename: (req, file, cb) => {
-    const userId = req.user.id; // Assuming user ID is available in req.user
-    cb(null, `${userId}.pdf`);
-  },
-});
-
-const upload = multer({
-  storage,
+// Configure multer with Cloudinary storage for resumes
+const upload = multer({ 
+  storage: resumeStorage,
   fileFilter: (req, file, cb) => {
     if (file.mimetype !== 'application/pdf') {
       return cb(new Error('Only PDF files are allowed'), false);
@@ -32,7 +22,7 @@ const upload = multer({
   },
 });
 
-// Add a resume upload route
+// Resume upload route
 router.post('/upload-resume', authMiddleware, upload.single('resume'), async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
@@ -41,8 +31,8 @@ router.post('/upload-resume', authMiddleware, upload.single('resume'), async (re
       return res.status(404).json({ error: 'User not found' });
     }
 
-    // Update user's resume field
-    user.resume = `${process.env.BACKEND_URL}/uploads/resume/${req.user.id}.pdf`;
+    // Cloudinary automatically provides the secure URL
+    user.resume = req.file.path;
     await user.save();
 
     res.json({ message: 'Resume uploaded successfully', resumeUrl: user.resume });
@@ -50,7 +40,6 @@ router.post('/upload-resume', authMiddleware, upload.single('resume'), async (re
     res.status(500).json({ error: error.message });
   }
 });
-
 
 // Public Routes
 router.post('/register', registerUser);

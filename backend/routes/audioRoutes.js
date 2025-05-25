@@ -1,7 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const path = require('path');
-const { uploadAudio, processAudio } = require('../controllers/audioController');
+const { uploadAudio, processAudio, uploadAudioMiddleware } = require('../controllers/audioController');
 
 const router = express.Router();
 
@@ -31,7 +31,7 @@ const upload = multer({
 });
 
 // POST route for audio upload
-router.post('/upload/:userId', upload.single('audio'), uploadAudio);
-router.post('/process/:roomId',  processAudio);
+router.post('/upload/:userId', uploadAudioMiddleware, uploadAudio);
+router.post('/process/:roomId', processAudio);
 
 module.exports = router;
