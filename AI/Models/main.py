@@ -57,7 +57,7 @@ import tempfile
 import os
 from fastapi import HTTPException
 
-app.get("/health")
+@app.get("/health")
 def health_check():
     """
     Health check endpoint to verify if the service is running.
