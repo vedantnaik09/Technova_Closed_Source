@@ -4,8 +4,9 @@ google-genai
 google-generativeai
 deepgram-sdk
 moviepy==1.0.3
-langchain-google-genai==1.0.0
+langchain-google-genai>=1.0.1
 pymongo==4.6.0
+anthropic[vertex]
 PyPdf2
 pydub==0.25.1
 gtts==2.3.2
