@@ -16,7 +16,12 @@ RUN cd backend && npm install
 
 # Copy AI requirements
 COPY AI/Models/requirements.txt ./AI/Models/
-RUN cd AI/Models && python3 -m pip install -r requirements.txt
+
+# Create Python virtual environment and install packages
+RUN cd AI/Models && python3 -m venv venv && \
+    . venv/bin/activate && \
+    pip install --upgrade pip && \
+    pip install -r requirements.txt
 
 # Copy all application code
 COPY . .

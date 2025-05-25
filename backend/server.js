@@ -52,7 +52,8 @@ function startPythonServer() {
   const pythonPath = path.join(__dirname, '..', 'AI', 'Models');
   console.log(`[PYTHON] Starting Python server from: ${pythonPath}`);
   
-  const pythonProcess = spawn('python3', ['main.py'], {
+  // Use the virtual environment Python
+  const pythonProcess = spawn('./venv/bin/python', ['main.py'], {
     cwd: pythonPath,
     stdio: ['pipe', 'pipe', 'pipe'],
     env: { 
